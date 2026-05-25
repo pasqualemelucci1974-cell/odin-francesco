@@ -1520,4 +1520,1936 @@ function loseXP(amount) {
 
 function loseHP(amount) {
   // v1.7: HP soft mode (with safety rails). If not enabled or Quiet Mode, no-op.
-  if (
+  if (!state.settings.hpSoft?.enabled) return;
+  if (state.settings.examMode) return;
+  amount = Math.max(0, Math.round(Number(amount) || 0));
+  if (!amount) return;
+  // Defensive: ensure HP and maxHp are valid numbers
+  if (!Number.isFinite(state.game.hp)) state.game.hp = state.game.maxHp || 50;
+  if (!Number.isFinite(state.game.maxHp)) state.game.maxHp = 50;
+  // Cap damage per day to maxDmgPerDay (no cascade)
+  const today = todayKey();
+  if (state.game.lastHpDmgDay !== today) {
+    state.game.lastHpDmgDay = today; state.game.dmgToday = 0;
+  }
+  // v1.7.x: defensive default if maxDmgPerDay is missing/corrupt
+  const maxDmgPerDay = Number(state.settings.hpSoft.maxDmgPerDay);
+  const safeMax = Number.isFinite(maxDmgPerDay) && maxDmgPerDay > 0 ? maxDmgPerDay : 6;
+  const remaining = safeMax - (state.game.dmgToday || 0);
+  if (remaining <= 0) return; // already at daily cap, safety rail
+  const actual = Math.min(amount, remaining);
+  state.game.hp = Math.max(0, state.game.hp - actual);
+  state.game.dmgToday = (state.game.dmgToday || 0) + actual;
+  // No game-over, no cascade, no penalty toast in face of user
+  save();
+}
+
+function healHP(amount) {
+  if (!state.settings.hpSoft?.enabled) return;
+  if (state.settings.examMode) return;
+  amount = Math.max(0, Math.round(Number(amount) || 0));
+  if (!amount) return;
+  // Defensive: ensure HP and maxHp are valid numbers
+  if (!Number.isFinite(state.game.hp)) state.game.hp = 0;
+  if (!Number.isFinite(state.game.maxHp)) state.game.maxHp = 50;
+  state.game.hp = Math.min(state.game.maxHp, state.game.hp + amount);
+  save();
+}
+
+// v1.7.x: utility to reset HP to max (no shame button in SYS)
+function resetHP() {
+  if (!Number.isFinite(state.game.maxHp)) state.game.maxHp = 50;
+  state.game.hp = state.game.maxHp;
+  state.game.dmgToday = 0;
+  save();
+  toast('HP ripristinato a ' + state.game.maxHp, 'success');
+  renderAll();
+}
+
+function showLevelUp() {
+  if (state.settings.examMode) return;
+  const tier = getTier(state.game.level);
+  const host = document.getElementById('levelupHost');
+  // v1.6: non-blocking, auto-dismiss in 2.5s, click to dismiss
+  host.innerHTML = `<div class="levelup levelup-soft" onclick="this.remove()">
+    <div style="text-align:center;background:var(--bg-1);border:1px solid var(--purple);padding:18px 22px;box-shadow:0 0 25px rgba(179,71,255,.4)">
+      <div style="font-size:48px;margin-bottom:6px">${tier.avatar}</div>
+      <div style="font-family:'Orbitron',monospace;font-size:24px;color:var(--purple);letter-spacing:3px;font-weight:800">LV ${state.game.level}</div>
+      <div style="font-size:11px;color:var(--cyan);margin-top:4px;letter-spacing:2px;text-transform:uppercase">${escapeHtml(tier.class)}</div>
+    </div>
+  </div>`;
+  setTimeout(() => { const el = host.querySelector('.levelup'); if (el) el.remove(); }, 2500);
+}
+
+// ============================================================
+// DAILY RESET (Habitica-style soft)
+// ============================================================
+function checkDailyReset() {
+  const today = todayKey();
+  if (state.game.lastDailyReset === today) return;
+  // v1.7: apply HP soft penalty per missed daily (with safety rails)
+  if (state.settings.hpSoft?.enabled && !state.settings.examMode && state.game.lastDailyReset) {
+    const missed = state.dailies.filter(d => !d.completedToday && shouldRunToday(d, state.game.lastDailyReset)).length;
+    if (missed > 0) {
+      loseHP(missed * (state.settings.hpSoft.dmgPerMiss || 2));
+    }
+  }
+  // Reset daily flags
+  state.dailies.forEach(d => { d.completedToday = false; });
+  state.habits.forEach(h => { h.todayPlus = 0; h.todayMinus = 0; });
+  // v1.7: reset daily damage counter
+  state.game.dmgToday = 0;
+  state.game.lastDailyReset = today;
+  save();
+}
+
+function shouldRunToday(daily, dateKey) {
+  if (!daily.frequency || daily.frequency === 'daily') return true;
+  const d = new Date(dateKey); const dow = d.getDay();
+  if (daily.frequency === 'weekdays') return dow >= 1 && dow <= 5;
+  if (daily.frequency === 'weekend') return dow === 0 || dow === 6;
+  return true;
+}
+
+// ============================================================
+// TABS
+// ============================================================
+document.querySelectorAll('.tab').forEach(btn => {
+  btn.addEventListener('click', () => {
+    document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+    document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
+    btn.classList.add('active');
+    document.getElementById('sec-' + btn.dataset.tab).classList.add('active');
+    renderAll();
+    window.scrollTo(0, 0);
+  });
+});
+
+document.querySelectorAll('.subnav button[data-do]').forEach(btn => {
+  btn.addEventListener('click', () => {
+    document.querySelectorAll('.subnav button[data-do]').forEach(t => t.classList.remove('active'));
+    document.querySelectorAll('.do-section').forEach(s => s.style.display = 'none');
+    btn.classList.add('active');
+    activeDoSection = btn.dataset.do;
+    document.getElementById('do-' + activeDoSection).style.display = 'block';
+    renderAll();
+  });
+});
+
+document.querySelectorAll('.subnav button[data-view]').forEach(btn => {
+  btn.addEventListener('click', () => {
+    document.querySelectorAll('.subnav button[data-view]').forEach(t => t.classList.remove('active'));
+    btn.classList.add('active');
+    activeTaskView = btn.dataset.view;
+    renderTasks();
+  });
+});
+
+// ============================================================
+// HEADER + CHARACTER
+// ============================================================
+function renderHeaderStatus() {
+  const host = document.getElementById('hdrStatus');
+  const sysActive = daysAgo(state.startDate);
+  const lastNote = state.notes[state.notes.length - 1];
+  const lastNoteDays = lastNote ? daysAgo(lastNote.ts) : null;
+  const examDate = state.settings.examDate;
+  let parts = [
+    `<span><span class="dot"></span> SYS·${sysActive}d</span>`,
+    `<span><span class="dot ${lastNoteDays === null ? 'idle' : lastNoteDays > 7 ? 'warn' : ''}"></span> last·${lastNoteDays === null ? '∅' : lastNoteDays + 'd'}</span>`
+  ];
+  if (examDate) {
+    const days = daysToExam(examDate);
+    if (days !== null && days >= 0) parts.push(`<span><span class="dot ${days < 14 ? 'danger' : days < 30 ? 'warn' : ''}"></span> exam·T-${days}d</span>`);
+  }
+  host.innerHTML = parts.join('');
+}
+
+function renderCharCard() {
+  const host = document.getElementById('charCard');
+  // v1.6: in exam mode, show quiet badge instead of character card
+  if (state.settings.examMode) {
+    host.outerHTML = '<div id="charCard" class="quiet-badge">🌙 Quiet Mode · no XP · no penalità · sistema neutro</div>';
+    return;
+  }
+  const g = state.game;
+  const tier = getTier(g.level);
+  const next = xpForNext(g.level);
+  const xpPct = Math.min(100, (g.xp / next) * 100);
+  const hpPct = (g.hp / g.maxHp) * 100;
+  // v1.6: ensure correct className when switching modes
+  host.className = 'char-card';
+  host.outerHTML = `<div class="char-card" id="charCard">
+    <div class="char-avatar">${tier.avatar}</div>
+    <div class="char-info">
+      <div class="char-name">LV ${g.level} · ${escapeHtml(tier.class)}</div>
+      <div class="char-class">XP ${g.xp} / ${next}</div>
+      <div class="bar"><div class="bar-fill xp" style="width:${xpPct}%"></div></div>
+      <div class="char-stats">
+        <div class="char-stat"><div class="char-stat-l">HP</div><div class="char-stat-v hp">${g.hp}/${g.maxHp}</div></div>
+        <div class="char-stat"><div class="char-stat-l">Tokens</div><div class="char-stat-v gold">${g.tokens}</div></div>
+        <div class="char-stat"><div class="char-stat-l">Total XP</div><div class="char-stat-v">${g.totalXP}</div></div>
+      </div>
+    </div>
+  </div>`;
+}
+
+// ============================================================
+// BACKUP BANNER
+// ============================================================
+function renderBackupBanner() {
+  const host = document.getElementById('backupBanner');
+  const lb = state.lastBackup; const d = lb ? daysAgo(lb) : null;
+  let cls = 'backup-banner', msg = '', show = false;
+  const hasData = state.notes.length || state.tasks.length || state.habits.length || state.dailies.length;
+  if (!lb && hasData) { show = true; cls += ' warn'; msg = '⚠ Nessun backup mai eseguito. Scarica un JSON.'; }
+  else if (d >= 21) { show = true; cls += ' danger'; msg = `⚠ Ultimo backup: ${d}d fa.`; }
+  else if (d >= 14) { show = true; cls += ' warn'; msg = `Ultimo backup: ${d}d fa.`; }
+  host.innerHTML = show ? `<div class="${cls}"><span>${msg}</span><button onclick="exportJSON()">Backup ora</button></div>` : '';
+}
+
+// ============================================================
+// STATUS
+// ============================================================
+function renderStatusGrid() {
+  const lastMood = state.moods[state.moods.length-1];
+  const lastSat = state.saturations[state.saturations.length-1];
+  const examDate = state.settings.examDate;
+  const examDays = examDate ? daysToExam(examDate) : null;
+  const moodColor = (v) => v <= 3 ? 'magenta' : v <= 6 ? 'yellow' : 'green';
+  document.getElementById('statusGrid').innerHTML = `
+    <div class="stat"><div class="stat-label">Mood</div><div class="stat-value ${lastMood ? moodColor(lastMood.value) : 'dim'}">${lastMood ? lastMood.value+'/10' : 'n/a'}</div><div class="stat-sub">${lastMood ? fmtShortDate(lastMood.ts) : '—'}</div></div>
+    <div class="stat"><div class="stat-label">Saturazione</div><div class="stat-value ${lastSat ? (lastSat.value > 7 ? 'magenta' : lastSat.value > 4 ? 'yellow' : 'green') : 'dim'}">${lastSat ? lastSat.value+'/10' : 'n/a'}</div><div class="stat-sub">${lastSat ? fmtShortDate(lastSat.ts) : '—'}</div></div>
+    <div class="stat"><div class="stat-label">Esami</div><div class="stat-value ${examDays !== null && examDays >= 0 ? (examDays < 14 ? 'magenta' : examDays < 30 ? 'yellow' : '') : 'dim'}">${examDays !== null && examDays >= 0 ? 'T-'+examDays+'d' : 'n/a'}</div><div class="stat-sub">${examDate ? fmtShortDate(examDate) : 'non impostata'}</div></div>
+    <div class="stat"><div class="stat-label">NTA</div><div class="stat-value ${state.settings.nachteilsausgleich ? 'green' : 'dim'}" style="font-size:15px">${state.settings.nachteilsausgleich ? '✓ ON' : 'n/a'}</div><div class="stat-sub">${escapeHtml((state.settings.nachteilsausgleich || '—').slice(0,22))}</div></div>
+  `;
+}
+
+function renderTodayOps() {
+  const host = document.getElementById('todayOps');
+  const dailiesToday = state.dailies.filter(d => shouldRunToday(d, todayKey()));
+  const tasksToday = state.tasks.filter(t => !t.done && (!t.due || t.due === todayKey() || t.due < todayKey()));
+  if (!dailiesToday.length && !tasksToday.length) { host.innerHTML = '<div class="empty">Niente in programma per oggi.</div>'; return; }
+  let html = '';
+  if (dailiesToday.length) {
+    html += `<div style="font-size:10px;letter-spacing:1px;color:var(--purple);text-transform:uppercase;margin-bottom:5px">Daily (${dailiesToday.filter(d=>d.completedToday).length}/${dailiesToday.length})</div>`;
+    dailiesToday.slice(0, 4).forEach(d => {
+      html += `<div class="todo${d.completedToday ? ' done' : ''}"><button class="todo-check${d.completedToday ? ' done' : ''}" onclick="toggleDaily('${d.id}', this)">${d.completedToday ? '✓' : ''}</button><div class="todo-content"><div class="todo-name">${escapeHtml(d.name)}</div></div></div>`;
+    });
+  }
+  if (tasksToday.length) {
+    html += `<div style="font-size:10px;letter-spacing:1px;color:var(--magenta);text-transform:uppercase;margin:8px 0 5px">Missions (${tasksToday.length})</div>`;
+    tasksToday.slice(0, 4).forEach(t => {
+      html += `<div class="todo priority-${t.priority||2}"><button class="todo-check" onclick="completeTask('${t.id}', this)"></button><div class="todo-content"><div class="todo-name">${escapeHtml(t.title)}</div><div class="todo-meta">${t.due ? '📅 '+t.due : ''} ${t.listId ? '📁 '+escapeHtml((state.settings.lists.find(l=>l.id===t.listId)||{}).name||'') : ''}</div></div></div>`;
+    });
+  }
+  host.innerHTML = html;
+}
+
+function renderRecentNotes() {
+  const host = document.getElementById('recentNotes');
+  const recent = state.notes.slice(-3).reverse();
+  if (!recent.length) { host.innerHTML = '<div class="empty">Nessuna nota</div>'; return; }
+  host.innerHTML = recent.map(n => `<div class="entry"><div class="entry-meta">${fmtDate(n.ts)}</div><div class="entry-text">${escapeHtml(n.text)}</div></div>`).join('');
+}
+
+function renderQuickPowerups() {
+  document.getElementById('quickPowerups').innerHTML = state.settings.customPowerups.map(p => `<button class="chip" onclick="logPowerup('${escapeAttr(p)}')">${escapeHtml(p)}</button>`).join('');
+}
+function logPowerup(type) {
+  state.powerups.push({ id: uid(), ts: new Date().toISOString(), type });
+  save(); toast('+ ' + type, 'success'); renderAll();
+}
+
+// ============================================================
+// LOG / REFLECTION
+// v1.8.3: XP for notes (Francesco's request)
+// Anti-gamification guardrails:
+//  - Min 20 chars (no farming "ok")
+//  - Cap 5 XP per note (no farming long garbage)
+//  - +1 XP bonus only for FIRST note of day (encourages variety, not quantity)
+//  - Existing exam mode still zeros all XP automatically
+// ============================================================
+function computeNoteXP(text, isFirstOfDay) {
+  const s = String(text || '').trim();
+  const len = s.length;
+  if (len < 20) return 0;
+  const base = Math.min(5, Math.max(1, Math.floor(len / 50)));
+  return isFirstOfDay ? base + 1 : base;
+}
+
+function isFirstNoteToday() {
+  const today = new Date().toISOString().slice(0, 10);
+  if (!Array.isArray(state.notes)) return true;
+  return !state.notes.some(n => {
+    if (!n || !n.ts) return false;
+    try { return dayKey(n.ts) === today; } catch(e) { return false; }
+  });
+}
+
+function flashXP(anchorId, amount) {
+  if (!amount || amount <= 0) return;
+  const animMode = document.documentElement.dataset.anim;
+  if (animMode === 'off') return; // rispetta no-anim
+  const anchor = document.getElementById(anchorId);
+  if (!anchor || !anchor.parentElement) return;
+  const parent = anchor.parentElement;
+  const prevPos = parent.style.position;
+  if (!prevPos || prevPos === 'static') parent.style.position = 'relative';
+  const flash = document.createElement('div');
+  flash.className = 'xp-flash';
+  flash.textContent = '+' + amount + ' XP';
+  flash.setAttribute('aria-hidden', 'true');
+  parent.appendChild(flash);
+  setTimeout(() => { try { flash.remove(); } catch(e) {} }, 1600);
+}
+
+function addNote() {
+  const ta = document.getElementById('noteInput'); const t = ta.value.trim();
+  if (!t) return toast('Vuota', 'error');
+  // CRITICO: leggi isFirst PRIMA del push, altrimenti la nuova nota conta come esistente
+  const wasFirstToday = isFirstNoteToday();
+  state.notes.push({ id: uid(), ts: new Date().toISOString(), text: t });
+  // v1.7: HP regen on log (silently) — encourages reflection without forcing
+  if (state.settings.hpSoft?.enabled && !state.settings.examMode) {
+    healHP(state.settings.hpSoft.regenPerLog || 5);
+  }
+  // v1.8.3: XP per nota (richiesta diretta di Francesco)
+  const xp = computeNoteXP(t, wasFirstToday);
+  if (xp > 0) {
+    gainXP(xp);
+    flashXP('noteInput', xp);
+  }
+  // Check achievements + companion (silent)
+  checkAchievements();
+  save(); ta.value = ''; toast('Nota salvata', 'success'); renderAll();
+}
+
+function renderMoodScale() {
+  const h = document.getElementById('moodScale'); h.innerHTML = '';
+  for (let i = 1; i <= 10; i++) { const b = document.createElement('button'); b.className = 'scale-btn'; b.textContent = i; b.onclick = () => logMood(i); h.appendChild(b); }
+}
+function logMood(v) {
+  v = Math.max(1, Math.min(10, Math.round(Number(v) || 0))); if (v < 1) return;
+  state.moods.push({ id: uid(), ts: new Date().toISOString(), value: v });
+  save(); toast('Mood ' + v + '/10', 'success'); renderAll();
+}
+
+function renderSatScale() {
+  const h = document.getElementById('satScale'); h.innerHTML = '';
+  for (let i = 1; i <= 10; i++) { const b = document.createElement('button'); b.className = 'scale-btn'; b.textContent = i; b.onclick = () => logSat(i); h.appendChild(b); }
+}
+function logSat(v) {
+  v = Math.max(1, Math.min(10, Math.round(Number(v) || 0))); if (v < 1) return;
+  state.saturations.push({ id: uid(), ts: new Date().toISOString(), value: v });
+  save(); toast('Sat ' + v + '/10', 'success'); renderAll();
+}
+
+function renderTiltScale() {
+  const h = document.getElementById('tiltScale'); h.innerHTML = '';
+  for (let i = 1; i <= 10; i++) {
+    const b = document.createElement('button'); b.className = 'scale-btn'; b.textContent = i;
+    b.onclick = () => { pendingTiltIntensity = i; [...h.children].forEach(c => c.classList.remove('selected')); b.classList.add('selected'); };
+    h.appendChild(b);
+  }
+}
+function addTilt() {
+  const t = document.getElementById('tiltTrigger').value.trim();
+  if (!t) return toast('Specifica trigger', 'error');
+  const intensity = Math.max(1, Math.min(10, Math.round(Number(pendingTiltIntensity) || 5)));
+  state.tilts.push({ id: uid(), ts: new Date().toISOString(), trigger: t, intensity });
+  // v1.7: companion (no FX - LOG zone firewall)
+  showCompanionMsg(pickCompanionMsg('on_tilt_logged'));
+  checkAchievements();
+  save(); document.getElementById('tiltTrigger').value = ''; pendingTiltIntensity = 5;
+  document.querySelectorAll('#tiltScale .scale-btn').forEach(c => c.classList.remove('selected'));
+  toast('Tilt registrato', 'success'); renderAll();
+}
+
+function renderHackScale() {
+  const h = document.getElementById('hackScale'); h.innerHTML = '';
+  for (let i = 0; i <= 9; i++) {
+    const b = document.createElement('button'); b.className = 'scale-btn'; b.textContent = i;
+    b.onclick = () => { pendingHackRating = i; [...h.children].forEach(c => c.classList.remove('selected')); b.classList.add('selected'); };
+    h.appendChild(b);
+  }
+}
+function addHack() {
+  const t = document.getElementById('hackText').value.trim();
+  if (!t) return toast('Descrivi', 'error');
+  const rating = Math.max(0, Math.min(9, Math.round(Number(pendingHackRating) || 5)));
+  state.hacks.push({ id: uid(), ts: new Date().toISOString(), description: t, rating });
+  // v1.7: companion + achievement check (no FX - LOG zone firewall)
+  showCompanionMsg(pickCompanionMsg('on_hack_logged'));
+  checkAchievements();
+  save(); document.getElementById('hackText').value = ''; pendingHackRating = 5;
+  document.querySelectorAll('#hackScale .scale-btn').forEach(c => c.classList.remove('selected'));
+  toast('Hack salvato', 'success'); renderAll();
+}
+
+// ============================================================
+// HABITS (gamified action tracking)
+// ============================================================
+function toggleHabitForm() { const f = document.getElementById('habitForm'); f.style.display = f.style.display === 'none' ? 'block' : 'none'; }
+function addHabit() {
+  const name = document.getElementById('habitName').value.trim();
+  if (!name) return toast('Nome richiesto', 'error');
+  const type = document.getElementById('habitType').value;
+  const diff = parseInt(document.getElementById('habitDiff').value);
+  state.habits.push({ id: uid(), ts: new Date().toISOString(), name, type, difficulty: diff, plusCount: 0, minusCount: 0, todayPlus: 0, todayMinus: 0, streak: 0, lastChange: null });
+  document.getElementById('habitName').value = '';
+  save(); toast('Habit creata', 'success'); toggleHabitForm(); renderAll();
+}
+function tapHabitPlus(id, btn) {
+  const h = state.habits.find(x => x.id === id); if (!h) return;
+  h.plusCount++; h.todayPlus = (h.todayPlus || 0) + 1; h.lastChange = new Date().toISOString();
+  FX.habit_plus(); VIBE.tap(); pulseEl(btn);
+  const xp = [2, 5, 10][h.difficulty - 1] || 5;
+  gainXP(xp);
+}
+function tapHabitMinus(id, btn) {
+  const h = state.habits.find(x => x.id === id); if (!h) return;
+  h.minusCount++; h.todayMinus = (h.todayMinus || 0) + 1; h.lastChange = new Date().toISOString();
+  FX.habit_minus(); VIBE.tap_minus(); pulseEl(btn);
+  const xp = [1, 2, 3][h.difficulty - 1] || 2;
+  loseXP(xp); loseHP(2);
+}
+function deleteHabit(id) { if (!confirm('Eliminare habit?')) return; state.habits = state.habits.filter(h => h.id !== id); save(); renderAll(); }
+function renderHabits() {
+  const host = document.getElementById('habitsList');
+  if (!state.habits.length) { host.innerHTML = '<div class="empty">Nessuna habit. Crea la prima.</div>'; return; }
+  host.innerHTML = state.habits.map(h => `
+    <div class="habit diff-${h.difficulty}">
+      ${(h.type === '+' || h.type === '+-') ? `<button class="habit-btn plus" onclick="tapHabitPlus('${h.id}', this)">+</button>` : ''}
+      ${(h.type === '-' || h.type === '+-') ? `<button class="habit-btn minus" onclick="tapHabitMinus('${h.id}', this)">−</button>` : ''}
+      <div class="habit-name">${escapeHtml(h.name)}<div style="font-size:10px;color:var(--txt-faint);margin-top:2px">+${h.plusCount} / −${h.minusCount} totali ${h.todayPlus ? '· oggi +'+h.todayPlus : ''} ${h.todayMinus ? '· oggi −'+h.todayMinus : ''}</div></div>
+      <div class="habit-actions"><button onclick="deleteHabit('${h.id}')">×</button></div>
+    </div>
+  `).join('');
+}
+
+// ============================================================
+// DAILIES
+// ============================================================
+function toggleDailyForm() { const f = document.getElementById('dailyForm'); f.style.display = f.style.display === 'none' ? 'block' : 'none'; }
+function addDaily() {
+  const name = document.getElementById('dailyName').value.trim();
+  if (!name) return toast('Nome richiesto', 'error');
+  const diff = parseInt(document.getElementById('dailyDiff').value);
+  const freq = document.getElementById('dailyFreq').value;
+  state.dailies.push({ id: uid(), ts: new Date().toISOString(), name, difficulty: diff, frequency: freq, streak: 0, longestStreak: 0, completedToday: false, lastCompleted: null });
+  document.getElementById('dailyName').value = '';
+  save(); toast('Daily creata', 'success'); toggleDailyForm(); renderAll();
+}
+function toggleDaily(id, btn) {
+  const d = state.dailies.find(x => x.id === id); if (!d) return;
+  const today = todayKey();
+  if (!d.completedToday) {
+    d.completedToday = true; d.streak = (d.streak || 0) + 1; d.longestStreak = Math.max(d.longestStreak || 0, d.streak); d.lastCompleted = new Date().toISOString();
+    FX.daily_done(); VIBE.daily_done(); pulseEl(btn);
+    // v1.6: track XP per day to prevent toggle-spam exploit
+    if (d.lastXPDay !== today) {
+      d.lastXPDay = today;
+      const xp = [5, 10, 20][d.difficulty - 1] || 10;
+      gainXP(xp);
+    } else {
+      save(); renderAll();
+    }
+  } else {
+    d.completedToday = false; d.streak = Math.max(0, d.streak - 1);
+    save(); renderAll();
+  }
+}
+function deleteDaily(id) { if (!confirm('Eliminare daily?')) return; state.dailies = state.dailies.filter(d => d.id !== id); save(); renderAll(); }
+function renderDailies() {
+  const host = document.getElementById('dailiesList');
+  if (!state.dailies.length) { host.innerHTML = '<div class="empty">Nessuna daily.</div>'; return; }
+  const today = todayKey();
+  host.innerHTML = state.dailies.map(d => {
+    const active = shouldRunToday(d, today);
+    return `<div class="todo${d.completedToday ? ' done' : ''}${!active ? '' : ''} priority-${d.difficulty}" style="${!active ? 'opacity:.4' : ''}">
+      <button class="todo-check${d.completedToday ? ' done' : ''}" onclick="toggleDaily('${d.id}', this)">${d.completedToday ? '✓' : ''}</button>
+      <div class="todo-content">
+        <div class="todo-name">${escapeHtml(d.name)}</div>
+        <div class="todo-meta">
+          <span>🔥 streak: ${d.streak || 0} (max ${d.longestStreak || 0})</span>
+          <span class="todo-tag">${d.frequency || 'daily'}</span>
+          ${!active ? '<span class="todo-tag">non oggi</span>' : ''}
+        </div>
+      </div>
+      <div class="todo-actions"><button onclick="deleteDaily('${d.id}')">×</button></div>
+    </div>`;
+  }).join('');
+}
+
+// ============================================================
+// TASKS (TickTick-style)
+// ============================================================
+function toggleTaskForm() {
+  const f = document.getElementById('taskForm'); f.style.display = f.style.display === 'none' ? 'block' : 'none';
+  if (f.style.display === 'block') renderListSelect();
+}
+function renderListSelect() {
+  document.getElementById('taskList').innerHTML = state.settings.lists.map(l => `<option value="${l.id}">${l.emoji || ''} ${escapeHtml(l.name)}</option>`).join('');
+}
+function addTask() {
+  const title = document.getElementById('taskTitle').value.trim();
+  if (!title) return toast('Titolo richiesto', 'error');
+  const listId = document.getElementById('taskList').value;
+  const priority = parseInt(document.getElementById('taskPriority').value);
+  const due = document.getElementById('taskDue').value || null;
+  const difficulty = parseInt(document.getElementById('taskDiff').value);
+  const tags = document.getElementById('taskTags').value.split(',').map(t => t.trim()).filter(Boolean);
+  state.tasks.push({ id: uid(), ts: new Date().toISOString(), title, listId, priority, due, difficulty, tags, done: false, doneAt: null });
+  document.getElementById('taskTitle').value = ''; document.getElementById('taskDue').value = ''; document.getElementById('taskTags').value = '';
+  save(); toast('Mission creata', 'success'); toggleTaskForm(); renderAll();
+}
+function completeTask(id, btn) {
+  const t = state.tasks.find(x => x.id === id); if (!t) return;
+  if (t.done) { t.done = false; t.doneAt = null; save(); renderAll(); return; }
+  t.done = true; t.doneAt = new Date().toISOString();
+  FX.task_done(); VIBE.task_done(); pulseEl(btn);
+  // v1.6: track XP awarded to prevent infinite-XP exploit (toggle ON/OFF)
+  if (!t.xpAwarded) {
+    t.xpAwarded = true;
+    const xp = [5, 10, 20][t.difficulty - 1] || 10;
+    const priorityBonus = [0, 0, 5][t.priority - 1] || 0;
+    gainXP(xp + priorityBonus);
+  } else {
+    save(); renderAll();
+  }
+}
+function deleteTask(id) { if (!confirm('Eliminare task?')) return; state.tasks = state.tasks.filter(t => t.id !== id); save(); renderAll(); }
+function setListFilter(id) { activeListFilter = id; renderTasks(); }
+function renderListsFilter() {
+  const host = document.getElementById('listsFilter');
+  const counts = {}; state.tasks.forEach(t => { if (!t.done) counts[t.listId] = (counts[t.listId] || 0) + 1; });
+  let html = `<div class="list-pill ${activeListFilter === 'all' ? 'active' : ''}" onclick="setListFilter('all')">📋 Tutte (${state.tasks.filter(t=>!t.done).length})</div>`;
+  state.settings.lists.forEach(l => {
+    html += `<div class="list-pill ${activeListFilter === l.id ? 'active' : ''}" onclick="setListFilter('${l.id}')">${l.emoji || ''} ${escapeHtml(l.name)} (${counts[l.id] || 0})</div>`;
+  });
+  host.innerHTML = html;
+}
+function renderTasks() {
+  renderListsFilter();
+  const host = document.getElementById('tasksList');
+  const today = todayKey();
+  const weekEnd = new Date(); weekEnd.setDate(weekEnd.getDate() + 7);
+  const weekEndKey = weekEnd.toISOString().slice(0, 10);
+  let filtered = state.tasks.slice();
+  if (activeListFilter !== 'all') filtered = filtered.filter(t => t.listId === activeListFilter);
+  if (activeTaskView === 'today') filtered = filtered.filter(t => !t.done && (!t.due || t.due <= today));
+  else if (activeTaskView === 'week') filtered = filtered.filter(t => !t.done && (!t.due || t.due <= weekEndKey));
+  else if (activeTaskView === 'done') filtered = filtered.filter(t => t.done);
+  else filtered = filtered.filter(t => !t.done);
+  filtered.sort((a, b) => {
+    if (a.done !== b.done) return a.done ? 1 : -1;
+    if (a.due && b.due) return a.due.localeCompare(b.due);
+    if (a.due) return -1; if (b.due) return 1;
+    return (b.priority || 2) - (a.priority || 2);
+  });
+  if (!filtered.length) { host.innerHTML = '<div class="empty">Nessuna mission per questa vista.</div>'; return; }
+  host.innerHTML = filtered.map(t => {
+    const list = state.settings.lists.find(l => l.id === t.listId) || {};
+    const overdue = t.due && t.due < today && !t.done;
+    return `<div class="todo priority-${t.priority || 2}${t.done ? ' done' : ''}">
+      <button class="todo-check${t.done ? ' done' : ''}" onclick="completeTask('${t.id}', this)">${t.done ? '✓' : ''}</button>
+      <div class="todo-content">
+        <div class="todo-name">${escapeHtml(t.title)}</div>
+        <div class="todo-meta">
+          ${list.name ? `<span class="todo-tag">${list.emoji || ''} ${escapeHtml(list.name)}</span>` : ''}
+          ${t.due ? `<span style="color:${overdue ? 'var(--red)' : 'var(--cyan-dim)'}">📅 ${t.due}${overdue ? ' (overdue)' : ''}</span>` : ''}
+          ${(t.tags || []).map(tag => `<span class="todo-tag">#${escapeHtml(tag)}</span>`).join('')}
+        </div>
+      </div>
+      <div class="todo-actions"><button onclick="deleteTask('${t.id}')">×</button></div>
+    </div>`;
+  }).join('');
+}
+
+// ============================================================
+// POMODORO
+// ============================================================
+// ============================================================
+// POMODORO v1.8.1 — wall-clock based, persistent, background-safe
+// Architettura: state.settings.pomoActive contiene endAt timestamp.
+// Display calcola da Date.now(). visibilitychange ricalcola al ritorno.
+// Wake Lock + Notification API se disponibili (graceful fallback).
+// XP: scalati ai minuti (formula in computePomoXP).
+// ============================================================
+let pomoTicker = null;
+let _pomoWakeLock = null;
+
+// XP formula: 25min → 15 XP (back-compat), cap 30, min 1
+function computePomoXP(minutes) {
+  return Math.max(1, Math.min(30, Math.round(minutes * 0.6)));
+}
+
+function pomoSafeFocusMinutes() {
+  const el = document.getElementById('pomoFocus');
+  const v = el ? parseInt(el.value, 10) : 25;
+  if (!Number.isFinite(v) || v < 1) return 25;
+  if (v > 180) return 180;
+  return v;
+}
+function pomoSafeBreakMinutes() {
+  const el = document.getElementById('pomoBreak');
+  const v = el ? parseInt(el.value, 10) : 5;
+  if (!Number.isFinite(v) || v < 1) return 5;
+  if (v > 60) return 60;
+  return v;
+}
+
+function _pomoRemainingSec() {
+  const p = state.settings.pomoActive;
+  if (!p) return null;
+  if (p.paused) return Math.max(0, Math.floor(p.pausedRemaining || 0));
+  return Math.max(0, Math.ceil((p.endAt - Date.now()) / 1000));
+}
+function _pomoIsRunning() { return !!(state.settings.pomoActive && !state.settings.pomoActive.paused); }
+function _pomoMode() { return state.settings.pomoActive ? state.settings.pomoActive.mode : 'focus'; }
+
+async function _pomoAcquireWakeLock() {
+  if (!('wakeLock' in navigator)) return;
+  try {
+    _pomoWakeLock = await navigator.wakeLock.request('screen');
+    _pomoWakeLock.addEventListener?.('release', () => { _pomoWakeLock = null; });
+  } catch(e) { /* graceful: API present but request rejected (permission/visibility) */ }
+}
+async function _pomoReleaseWakeLock() {
+  if (!_pomoWakeLock) return;
+  try { await _pomoWakeLock.release(); } catch(e) {}
+  _pomoWakeLock = null;
+}
+function _pomoNotify(title, body) {
+  if (!state.settings.pomoNotifyOK) return;
+  if (typeof Notification === 'undefined' || Notification.permission !== 'granted') return;
+  try { new Notification(title, { body, silent: false }); } catch(e) {}
+}
+
+function pomoRequestNotificationPermission() {
+  if (typeof Notification === 'undefined') {
+    toast('Notifiche non supportate da questo browser', 'error');
+    return;
+  }
+  if (Notification.permission === 'granted') {
+    state.settings.pomoNotifyOK = true;
+    save();
+    toast('Notifiche già attive', 'success');
+    return;
+  }
+  if (Notification.permission === 'denied') {
+    toast('Permesso negato — riattiva dalle impostazioni del browser', 'error');
+    return;
+  }
+  Notification.requestPermission().then(p => {
+    if (p === 'granted') {
+      state.settings.pomoNotifyOK = true;
+      save();
+      toast('Notifiche pomodoro attivate', 'success');
+    } else {
+      state.settings.pomoNotifyOK = false;
+      save();
+    }
+    renderSys && renderSys();
+  });
+}
+
+function pomoStart() {
+  const p = state.settings.pomoActive;
+  // Guard: sessione già attiva (non in pausa, deadline futura) → idempotente
+  if (p && !p.paused && p.endAt > Date.now()) {
+    _pomoSyncButtons();
+    return;
+  }
+  // Caso 1: ripresa da pausa
+  if (p && p.paused) {
+    p.endAt = Date.now() + (p.pausedRemaining || 0) * 1000;
+    p.paused = false;
+    p.pausedRemaining = 0;
+    save();
+    _pomoAcquireWakeLock();
+    _pomoStartTicker();
+    _pomoSyncButtons();
+    return;
+  }
+  // Caso 2: nuova sessione (focus o break a seconda di pomoActive precedente)
+  const mode = p ? p.mode : 'focus';
+  const minutes = mode === 'focus' ? pomoSafeFocusMinutes() : pomoSafeBreakMinutes();
+  state.settings.pomoActive = {
+    endAt: Date.now() + minutes * 60 * 1000,
+    mode,
+    startedAt: Date.now(),
+    plannedMin: minutes,
+    paused: false,
+    pausedRemaining: 0
+  };
+  save();
+  _pomoAcquireWakeLock();
+  _pomoStartTicker();
+  _pomoSyncButtons();
+  updatePomoDisplay();
+}
+
+function pomoPause() {
+  const p = state.settings.pomoActive;
+  if (!p || p.paused) return;
+  p.pausedRemaining = Math.max(0, Math.ceil((p.endAt - Date.now()) / 1000));
+  p.paused = true;
+  save();
+  _pomoReleaseWakeLock();
+  _pomoStopTicker();
+  _pomoSyncButtons();
+  updatePomoDisplay();
+}
+
+function pomoReset() {
+  state.settings.pomoActive = null;
+  save();
+  _pomoReleaseWakeLock();
+  _pomoStopTicker();
+  _pomoSyncButtons();
+  updatePomoDisplay();
+}
+
+function pomoConfigChange() {
+  // Se non è attivo un timer, l'input cambia solo il display di default.
+  // Se è attivo, non disturbiamo: la durata corrente è già fissata.
+  if (!state.settings.pomoActive) updatePomoDisplay();
+}
+
+function _pomoStartTicker() {
+  if (pomoTicker) clearInterval(pomoTicker);
+  pomoTicker = setInterval(() => {
+    if (!_pomoIsRunning()) { _pomoStopTicker(); return; }
+    updatePomoDisplay();
+    if (_pomoRemainingSec() === 0) pomoComplete();
+  }, 250);
+}
+function _pomoStopTicker() {
+  if (pomoTicker) { clearInterval(pomoTicker); pomoTicker = null; }
+}
+
+function _pomoSyncButtons() {
+  const btnStart = document.getElementById('pomoStart');
+  const btnPause = document.getElementById('pomoPause');
+  if (!btnStart || !btnPause) return;
+  if (_pomoIsRunning()) {
+    btnStart.style.display = 'none';
+    btnPause.style.display = 'inline-flex';
+  } else {
+    btnStart.style.display = 'inline-flex';
+    btnPause.style.display = 'none';
+  }
+}
+
+function pomoComplete() {
+  const p = state.settings.pomoActive;
+  if (!p) return;
+  _pomoStopTicker();
+  _pomoReleaseWakeLock();
+  if (p.mode === 'focus') {
+    // Calcolo durata REALE in minuti (non plannedMin: per coerenza con quanto effettivamente speso)
+    // Se completata, è == plannedMin per costruzione. Se invece chiamata anticipatamente, sarebbe meno
+    // (ma in v1.8.1 pomoComplete viene chiamato SOLO quando remaining=0, quindi = plannedMin)
+    const minutes = p.plannedMin;
+    const xp = computePomoXP(minutes);
+    state.pomoSessions.push({ id: uid(), ts: new Date().toISOString(), mode: 'focus', duration: minutes });
+    gainXP(xp);
+    FX.pomo_focus_end(); VIBE.pomo_focus_end();
+    _pomoNotify('🍅 Focus completato', `+${xp} XP · pausa pronta`);
+    // Setup break
+    state.settings.pomoActive = {
+      endAt: 0, // verrà rifatto al click START
+      mode: 'break',
+      startedAt: 0,
+      plannedMin: pomoSafeBreakMinutes(),
+      paused: false,
+      pausedRemaining: 0
+    };
+    save();
+    toast(`Focus completato! +${xp} XP. Tap Start per pausa.`, 'success');
+  } else {
+    FX.pomo_break_end(); VIBE.pomo_break_end();
+    _pomoNotify('☕ Pausa finita', 'Pronto per altro focus');
+    state.settings.pomoActive = null;
+    save();
+    toast('Pausa finita. Pronto per altro focus.', '');
+  }
+  _pomoSyncButtons();
+  updatePomoDisplay();
+  renderHeaderStatus && renderHeaderStatus();
+  renderPomoStats && renderPomoStats();
+}
+
+function updatePomoDisplay() {
+  const tEl = document.getElementById('pomoTime');
+  const sEl = document.getElementById('pomoState');
+  if (!tEl || !sEl) return;
+  const p = state.settings.pomoActive;
+  let totalSec;
+  let mode = 'focus';
+  let label = 'READY';
+  if (!p) {
+    totalSec = pomoSafeFocusMinutes() * 60;
+  } else if (p.paused) {
+    totalSec = p.pausedRemaining;
+    mode = p.mode;
+    label = 'PAUSA';
+  } else if (p.endAt === 0) {
+    // break pronta da iniziare
+    totalSec = p.plannedMin * 60;
+    mode = 'break';
+    label = 'READY';
+  } else {
+    totalSec = _pomoRemainingSec();
+    mode = p.mode;
+    label = mode === 'focus' ? 'FOCUS' : 'BREAK';
+  }
+  if (!Number.isFinite(totalSec) || totalSec < 0) totalSec = 0;
+  totalSec = Math.floor(totalSec);
+  const m = Math.floor(totalSec / 60), s = totalSec % 60;
+  tEl.textContent = `${String(m).padStart(2,'0')}:${String(s).padStart(2,'0')}`;
+  sEl.textContent = label;
+}
+
+// Boot recovery: al load, se c'è un pomoActive, ripristiniamo o auto-completiamo
+function pomoRestore() {
+  const p = state.settings.pomoActive;
+  if (!p) { _pomoSyncButtons(); updatePomoDisplay(); return; }
+  if (p.paused) {
+    // mostra in pausa
+    _pomoSyncButtons();
+    updatePomoDisplay();
+    return;
+  }
+  if (p.endAt === 0) {
+    // break in attesa di start
+    _pomoSyncButtons();
+    updatePomoDisplay();
+    return;
+  }
+  // Sessione attiva: scaduta o ancora in corso?
+  const remaining = _pomoRemainingSec();
+  if (remaining === 0) {
+    // Sessione scaduta in background → completala
+    pomoComplete();
+  } else {
+    // Riparti ticker
+    _pomoAcquireWakeLock();
+    _pomoStartTicker();
+    _pomoSyncButtons();
+    updatePomoDisplay();
+  }
+}
+
+// visibilitychange: quando si torna alla pagina, ricalcola e completa se serve
+if (typeof document !== 'undefined') {
+  document.addEventListener('visibilitychange', () => {
+    if (document.visibilityState === 'visible') {
+      const p = state.settings && state.settings.pomoActive;
+      if (p && !p.paused && p.endAt > 0) {
+        // Ri-acquisisci wake lock se rilasciato in background
+        if (!_pomoWakeLock) _pomoAcquireWakeLock();
+        updatePomoDisplay();
+        if (_pomoRemainingSec() === 0) pomoComplete();
+        else if (!pomoTicker) _pomoStartTicker();
+      }
+    }
+  });
+}
+
+function renderPomoStats() {
+  const el = document.getElementById('pomoStats');
+  if (!el) return;
+  const week = state.pomoSessions.filter(p => withinDays(p.ts, 7));
+  const total = week.reduce((s, p) => s + (p.duration || 25), 0);
+  el.innerHTML = `Settimana: <span style="color:var(--cyan)">${week.length}</span> sessioni · <span style="color:var(--cyan)">${total}</span> min focus`;
+}
+
+// ============================================================
+// REWARDS
+// ============================================================
+function toggleRewardForm() { const f = document.getElementById('rewardForm'); f.style.display = f.style.display === 'none' ? 'block' : 'none'; }
+function addReward() {
+  const name = document.getElementById('rewardName').value.trim();
+  const cost = Math.max(1, parseInt(document.getElementById('rewardCost').value) || 50);
+  if (!name) return toast('Nome richiesto', 'error');
+  state.rewards.push({ id: uid(), ts: new Date().toISOString(), name, cost, claims: [] });
+  document.getElementById('rewardName').value = '';
+  save(); toast('Reward creato', 'success'); toggleRewardForm(); renderAll();
+}
+function claimReward(id) {
+  const r = state.rewards.find(x => x.id === id); if (!r) return;
+  if (state.game.tokens < r.cost) return toast(`Servono ${r.cost} token (hai ${state.game.tokens})`, 'error');
+  if (!confirm(`Spendere ${r.cost} token per "${r.name}"?`)) return;
+  state.game.tokens -= r.cost;
+  r.claims = r.claims || []; r.claims.push(new Date().toISOString());
+  save(); toast(`Reward riscattato! 🎉`, 'success'); renderAll();
+}
+function deleteReward(id) { if (!confirm('Eliminare reward?')) return; state.rewards = state.rewards.filter(r => r.id !== id); save(); renderAll(); }
+function renderRewards() {
+  const host = document.getElementById('rewardsList');
+  if (!state.rewards.length) { host.innerHTML = '<div class="empty">Nessun reward. Creane uno!</div>'; return; }
+  host.innerHTML = state.rewards.map(r => {
+    const can = state.game.tokens >= r.cost;
+    return `<div class="reward">
+      <div class="reward-name">${escapeHtml(r.name)}<div style="font-size:10px;color:var(--txt-faint);margin-top:2px">${(r.claims||[]).length} volte riscattato</div></div>
+      <div class="reward-cost">${r.cost}🪙</div>
+      <button class="btn btn-sm ${can ? 'btn-yellow' : 'btn-ghost'}" onclick="claimReward('${r.id}')" ${!can ? 'disabled' : ''}>${can ? 'Buy' : 'Locked'}</button>
+      <button class="btn btn-sm btn-ghost" onclick="deleteReward('${r.id}')">×</button>
+    </div>`;
+  }).join('');
+}
+
+// ============================================================
+// GOALS / SETTINGS / LISTS
+// ============================================================
+function toggleGoalForm() { const f = document.getElementById('goalFormBox'); f.style.display = f.style.display === 'none' ? 'block' : 'none'; }
+function addGoal() {
+  const i = document.getElementById('goalInput'); const t = i.value.trim();
+  if (!t) return;
+  state.goals.push({ id: uid(), ts: new Date().toISOString(), text: t, done: false });
+  save(); i.value = ''; toast('Goal aggiunto', 'success'); renderAll();
+}
+function toggleGoal(id) { const g = state.goals.find(g => g.id === id); if (g) { g.done = !g.done; save(); renderAll(); } }
+function deleteGoal(id) { if (!confirm('Eliminare?')) return; state.goals = state.goals.filter(g => g.id !== id); save(); renderAll(); }
+function renderGoals() {
+  const host = document.getElementById('goalsList');
+  if (!state.goals.length) { host.innerHTML = '<div class="empty">Nessun obiettivo</div>'; return; }
+  host.innerHTML = state.goals.map(g => `
+    <div class="todo${g.done ? ' done' : ''}">
+      <button class="todo-check${g.done ? ' done' : ''}" onclick="toggleGoal('${g.id}')">${g.done ? '✓' : ''}</button>
+      <div class="todo-content"><div class="todo-name">${escapeHtml(g.text)}</div></div>
+      <div class="todo-actions"><button onclick="deleteGoal('${g.id}')">×</button></div>
+    </div>`).join('');
+}
+
+function loadSettingsToInputs() {
+  document.getElementById('examDate').value = state.settings.examDate || '';
+  document.getElementById('ntaInput').value = state.settings.nachteilsausgleich || '';
+  document.getElementById('patenteInput').value = state.settings.patente || '';
+}
+function updateSettings() {
+  state.settings.examDate = document.getElementById('examDate').value || null;
+  state.settings.nachteilsausgleich = document.getElementById('ntaInput').value.trim() || null;
+  state.settings.patente = document.getElementById('patenteInput').value.trim() || null;
+  save(); renderAll(); toast('Setup salvato', 'success');
+}
+
+function addList() {
+  const n = document.getElementById('newListName').value.trim();
+  if (!n) return;
+  state.settings.lists.push({ id: uid(), name: n, emoji: '📁' });
+  document.getElementById('newListName').value = '';
+  save(); renderAll();
+}
+function deleteList(id) {
+  if (id === 'inbox') return toast('Inbox non eliminabile', 'error');
+  if (!confirm('Eliminare lista? I task vanno in Inbox.')) return;
+  state.tasks.forEach(t => { if (t.listId === id) t.listId = 'inbox'; });
+  state.settings.lists = state.settings.lists.filter(l => l.id !== id);
+  save(); renderAll();
+}
+function renderListsManager() {
+  document.getElementById('listsManager').innerHTML = state.settings.lists.map(l => `
+    <div class="todo"><div class="todo-content"><div class="todo-name">${l.emoji || '📁'} ${escapeHtml(l.name)}</div></div>
+    ${l.id !== 'inbox' ? `<div class="todo-actions"><button onclick="deleteList('${l.id}')">×</button></div>` : ''}</div>`).join('');
+}
+
+function renderCustomPowerups() {
+  const host = document.getElementById('customPowerupsList');
+  if (!state.settings.customPowerups.length) { host.innerHTML = '<div class="empty">Nessuno</div>'; return; }
+  host.innerHTML = state.settings.customPowerups.map((p, i) => `<div class="todo"><div class="todo-content"><div class="todo-name">${escapeHtml(p)}</div></div><div class="todo-actions"><button onclick="removeCustomPowerup(${i})">×</button></div></div>`).join('');
+}
+function addCustomPowerup() {
+  const i = document.getElementById('newPowerupInput'); const v = i.value.trim(); if (!v) return;
+  state.settings.customPowerups.push(v); save(); i.value = ''; renderAll(); toast('Aggiunto', 'success');
+}
+function removeCustomPowerup(idx) { state.settings.customPowerups.splice(idx, 1); save(); renderAll(); }
+
+// ============================================================
+// ARCHIVE
+// ============================================================
+function setFilter(k) { activeFilter = k; renderArchive(); }
+function renderFilterPills() {
+  const filters = [
+    { k: 'all', l: 'Tutto', n: state.notes.length + state.tilts.length + state.hacks.length + state.powerups.length + state.moods.length + state.saturations.length + state.tasks.length + state.dailies.length + state.habits.length },
+    { k: 'notes', l: 'Note', n: state.notes.length },
+    { k: 'tilts', l: 'Tilt', n: state.tilts.length },
+    { k: 'hacks', l: 'Hack', n: state.hacks.length },
+    { k: 'powerups', l: 'P-up', n: state.powerups.length },
+    { k: 'moods', l: 'Mood', n: state.moods.length },
+    { k: 'sat', l: 'Sat', n: state.saturations.length },
+    { k: 'tasks', l: 'Tasks', n: state.tasks.length }
+  ];
+  document.getElementById('filterPills').innerHTML = filters.map(f => `<span class="count-pill ${activeFilter === f.k ? 'active' : ''}" onclick="setFilter('${f.k}')">${f.l}·${f.n}</span>`).join('');
+}
+function renderArchive() {
+  renderFilterPills();
+  const host = document.getElementById('archiveList');
+  const search = (document.getElementById('searchInput')?.value || '').toLowerCase().trim();
+  let items = [];
+  const add = (arr, cls, fmt) => arr.forEach(e => items.push({ ts: e.ts, cls, html: fmt(e), e }));
+  if (activeFilter === 'all' || activeFilter === 'notes') add(state.notes, 'note', e => `<div class="entry-text">${escapeHtml(e.text)}</div>`);
+  if (activeFilter === 'all' || activeFilter === 'tilts') add(state.tilts, 'tilt', e => `<div class="entry-text"><strong style="color:var(--red)">[TILT ${e.intensity}/10]</strong> ${escapeHtml(e.trigger)}</div>`);
+  if (activeFilter === 'all' || activeFilter === 'hacks') add(state.hacks, 'hack', e => `<div class="entry-text"><strong style="color:var(--yellow)">[HACK ${e.rating}/9]</strong> ${escapeHtml(e.description)}</div>`);
+  if (activeFilter === 'all' || activeFilter === 'powerups') add(state.powerups, 'powerup', e => `<div class="entry-text"><strong style="color:var(--green)">[P-UP]</strong> ${escapeHtml(e.type)}</div>`);
+  if (activeFilter === 'all' || activeFilter === 'moods') add(state.moods, 'mood', e => `<div class="entry-text"><strong style="color:var(--magenta)">[MOOD]</strong> ${e.value}/10</div>`);
+  if (activeFilter === 'all' || activeFilter === 'sat') add(state.saturations, 'sat', e => `<div class="entry-text"><strong style="color:var(--orange)">[SAT]</strong> ${e.value}/10</div>`);
+  if (activeFilter === 'all' || activeFilter === 'tasks') add(state.tasks.filter(t => t.done && t.doneAt), 'note', e => `<div class="entry-text"><strong style="color:var(--cyan)">[TASK✓]</strong> ${escapeHtml(e.title)}</div>`);
+  if (search) items = items.filter(it => it.html.toLowerCase().includes(search));
+  items.sort((a, b) => new Date(b.ts) - new Date(a.ts));
+  if (!items.length) { host.innerHTML = '<div class="empty">Niente</div>'; return; }
+  host.innerHTML = items.slice(0, 200).map(it => `<div class="entry ${it.cls}"><div class="entry-meta"><span>${fmtDate(it.ts)}</span><button class="entry-del" onclick="deleteEntry('${it.cls}','${it.e.id}')">×</button></div>${it.html}</div>`).join('') + (items.length > 200 ? `<div class="empty">+${items.length - 200} più vecchi nascosti</div>` : '');
+}
+function deleteEntry(type, id) {
+  if (!confirm('Eliminare?')) return;
+  const map = { note: 'notes', tilt: 'tilts', hack: 'hacks', powerup: 'powerups', mood: 'moods', sat: 'saturations' };
+  if (map[type]) { state[map[type]] = state[map[type]].filter(e => e.id !== id); save(); renderAll(); }
+}
+
+// ============================================================
+// REVIEW
+// ============================================================
+function renderReview() {
+  const days = 7;
+  const w = {
+    notes: state.notes.filter(e => withinDays(e.ts, days)),
+    tilts: state.tilts.filter(e => withinDays(e.ts, days)),
+    hacks: state.hacks.filter(e => withinDays(e.ts, days)),
+    powerups: state.powerups.filter(e => withinDays(e.ts, days)),
+    moods: state.moods.filter(e => withinDays(e.ts, days)),
+    sats: state.saturations.filter(e => withinDays(e.ts, days)),
+    tasks: state.tasks.filter(t => t.done && t.doneAt && withinDays(t.doneAt, days))
+  };
+  const moodAvg = w.moods.length ? (w.moods.reduce((s, m) => s + m.value, 0) / w.moods.length).toFixed(1) : null;
+  const satAvg = w.sats.length ? (w.sats.reduce((s, m) => s + m.value, 0) / w.sats.length).toFixed(1) : null;
+  const activeDays = new Set();
+  [...w.notes, ...w.tilts, ...w.hacks, ...w.powerups, ...w.moods, ...w.sats].forEach(e => activeDays.add(new Date(e.ts).toDateString()));
+
+  let html = renderContinuityHTML() + `<div class="help" style="margin-bottom:10px">Review onesta, non report di performance. Vedi solo cosa è successo.</div>
+    <div class="status-grid">
+      <div class="stat"><div class="stat-label">Mood medio</div><div class="stat-value ${moodAvg ? '' : 'dim'}">${moodAvg || 'n/a'}</div><div class="stat-sub">${w.moods.length} log</div></div>
+      <div class="stat"><div class="stat-label">Saturazione media</div><div class="stat-value ${satAvg ? '' : 'dim'}">${satAvg || 'n/a'}</div><div class="stat-sub">${w.sats.length} log</div></div>
+      <div class="stat"><div class="stat-label">Giorni attivi</div><div class="stat-value">${activeDays.size}/7</div></div>
+      <div class="stat"><div class="stat-label">Task chiusi</div><div class="stat-value ${w.tasks.length ? 'green' : 'dim'}">${w.tasks.length}</div></div>
+    </div>`;
+
+  const obs = [];
+  if (w.notes.length === 0) obs.push('• Nessuna nota questa settimana.');
+  if (w.notes.length >= 5) obs.push(`• ${w.notes.length} note: il free-text è in uso.`);
+  if (w.tilts.length === 0 && w.notes.length > 0) obs.push('• 0 tilt: equilibrio o tilt gestiti senza arrivare al punto critico.');
+  if (w.tilts.length > 3) obs.push(`• ${w.tilts.length} tilt: settimana intensa. Niente giudizio.`);
+  if (w.powerups.length === 0 && w.notes.length > 0) {
+    const m = ['bici', 'camminata', 'musica', 'magnesio', 'doccia'].filter(k => w.notes.some(n => n.text.toLowerCase().includes(k)));
+    if (m.length) obs.push('• Power-up "fantasma" nelle note: ' + m.join(', '));
+  }
+  html += `<div class="card-title" style="margin-top:10px"><span class="title-text">Osservazioni</span></div><div style="font-size:12px;line-height:1.7;color:var(--txt-dim)">${obs.length ? obs.map(o => `<div>${o}</div>`).join('') : '<div>Dati insufficienti.</div>'}</div>`;
+  document.getElementById('weeklyReview').innerHTML = html;
+}
+
+function renderAchievements() {
+  const g = state.game;
+  const tier = getTier(g.level);
+  const totalActions = state.tasks.filter(t => t.done).length + state.dailies.reduce((s, d) => s + (d.longestStreak || 0), 0) + state.habits.reduce((s, h) => s + (h.plusCount || 0), 0);
+  const pomoTotal = state.pomoSessions.length;
+  const html = `<div class="status-grid">
+    <div class="stat"><div class="stat-label">Tier</div><div class="stat-value purple">${tier.avatar}</div><div class="stat-sub">${tier.class}</div></div>
+    <div class="stat"><div class="stat-label">Level</div><div class="stat-value">${g.level}</div><div class="stat-sub">XP totali ${g.totalXP}</div></div>
+    <div class="stat"><div class="stat-label">Tokens</div><div class="stat-value yellow">${g.tokens}🪙</div></div>
+    <div class="stat"><div class="stat-label">Azioni</div><div class="stat-value">${totalActions}</div><div class="stat-sub">task + habit + daily</div></div>
+    <div class="stat"><div class="stat-label">Focus</div><div class="stat-value">${pomoTotal}</div><div class="stat-sub">sessioni pomodoro</div></div>
+    <div class="stat"><div class="stat-label">HP</div><div class="stat-value ${g.hp < g.maxHp/3 ? 'magenta' : ''}">${g.hp}/${g.maxHp}</div></div>
+  </div>`;
+  document.getElementById('achievements').innerHTML = html;
+}
+
+// ============================================================
+// EXPORT / IMPORT JSON
+// ============================================================
+function exportJSON() {
+  const blob = new Blob([JSON.stringify(state, null, 2)], { type: 'application/json' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  const d = new Date(); const stamp = d.toISOString().slice(0,10) + '_' + String(d.getHours()).padStart(2,'0') + String(d.getMinutes()).padStart(2,'0');
+  a.href = url; a.download = `odin_backup_${stamp}.json`;
+  document.body.appendChild(a); a.click(); document.body.removeChild(a); URL.revokeObjectURL(url);
+  state.lastBackup = new Date().toISOString(); save(); toast('Backup scaricato', 'success'); renderAll();
+}
+function importJSON(event) {
+  const file = event.target.files[0]; if (!file) return;
+  const r = new FileReader();
+  r.onerror = () => { toast('Errore lettura file', 'error'); event.target.value = ''; };
+  r.onload = (e) => {
+    try {
+      const p = JSON.parse(e.target.result);
+      if (typeof p !== 'object' || !p) throw new Error('Formato non valido');
+      const keys = ['notes', 'moods', 'saturations', 'tilts', 'hacks', 'powerups', 'tasks', 'habits', 'dailies'];
+      if (!keys.some(k => Array.isArray(p[k]))) throw new Error('Non sembra un backup ODIN');
+      const n = keys.reduce((s, k) => s + (Array.isArray(p[k]) ? p[k].length : 0), 0);
+      const currentN = keys.reduce((s, k) => s + (Array.isArray(state[k]) ? state[k].length : 0), 0);
+      if (!confirm(`Ripristinare backup?\n\nBackup: ${n} elementi\nAttuale: ${currentN} elementi\n\n⚠ Lo stato attuale sarà SOSTITUITO. Fai prima un backup se vuoi conservarlo.`)) { event.target.value = ''; return; }
+      state = migrate(p); save(); toast('Ripristinato', 'success'); renderAll();
+    } catch (err) { toast('Errore: ' + err.message, 'error'); }
+    event.target.value = '';
+  };
+  r.readAsText(file);
+}
+
+// ============================================================
+// TEXT EXPORT
+// ============================================================
+function generateTextExport() {
+  const now = new Date();
+  const w7 = { notes: state.notes.filter(e => withinDays(e.ts, 7)), tilts: state.tilts.filter(e => withinDays(e.ts, 7)), hacks: state.hacks.filter(e => withinDays(e.ts, 7)), powerups: state.powerups.filter(e => withinDays(e.ts, 7)) };
+  const lastMood = state.moods[state.moods.length - 1], lastSat = state.saturations[state.saturations.length - 1];
+  const examDate = state.settings.examDate; const examDays = examDate ? daysToExam(examDate) : null;
+  const tier = getTier(state.game.level);
+
+  let txt = '';
+  txt += '╔═══════════════════════════════════════╗\n';
+  txt += '║   O.D.I.N. EXPORT // FRANCESCO        ║\n';
+  txt += '║   ' + fmtDate(now.toISOString()).padEnd(36) + '║\n';
+  txt += '║   v' + VERSION + ' · ' + (state.settings.examMode ? 'QUIET MODE        ' : 'FULL MODE         ') + '       ║\n';
+  txt += '╚═══════════════════════════════════════╝\n';
+  if (!state.settings.examMode) {
+    txt += `▸ AVATAR\n  ${tier.avatar} ${tier.class} · LV ${state.game.level}\n  XP ${state.game.xp}/${xpForNext(state.game.level)} · Total ${state.game.totalXP}\n  HP ${state.game.hp}/${state.game.maxHp} · Tokens ${state.game.tokens}\n`;
+  }
+  txt += '▸ OBIETTIVI\n';
+  if (state.goals.length) state.goals.forEach(g => txt += `  ${g.done ? '[x]' : '[ ]'} ${g.text}\n`); else txt += '  (nessuno)\n';
+  txt += '▸ STATUS\n';
+  txt += `  Mood.................: ${lastMood ? lastMood.value+'/10 ('+fmtShortDate(lastMood.ts)+')' : 'n/a'}\n`;
+  txt += `  Saturazione..........: ${lastSat ? lastSat.value+'/10' : 'n/a'}\n`;
+  txt += `  Esami BBW............: ${examDate ? 'T-'+examDays+'d ('+fmtShortDate(examDate)+')' : 'non impostata'}\n`;
+  txt += `  Nachteilsausgleich...: ${state.settings.nachteilsausgleich || 'n/a'}\n`;
+  txt += '▸ ATTIVITÀ ULTIMI 7 GIORNI\n';
+  txt += `  Note.........: ${w7.notes.length}\n  Tilt.........: ${w7.tilts.length}\n  Hack.........: ${w7.hacks.length}\n  Power-up.....: ${w7.powerups.length}\n`;
+  txt += `  Task chiusi..: ${state.tasks.filter(t => t.done && t.doneAt && withinDays(t.doneAt, 7)).length}\n`;
+  txt += `  Daily chiuse.: ${state.dailies.reduce((s, d) => s + (d.completedToday ? 1 : 0), 0)} oggi\n`;
+  txt += '▸ ULTIME 10 NOTE\n';
+  if (state.notes.length) state.notes.slice(-10).forEach(n => txt += `  - ${fmtDate(n.ts)}\n    "${n.text.replace(/\n/g,' ')}"\n`); else txt += '  (nessuna)\n';
+  txt += '▸ ULTIMI 5 TILT\n';
+  if (state.tilts.length) state.tilts.slice(-5).forEach(t => txt += `  - ${fmtDate(t.ts)} · ${t.trigger} [${t.intensity}/10]\n`); else txt += '  (nessuno)\n';
+  txt += '▸ ULTIMI 5 HACK\n';
+  if (state.hacks.length) state.hacks.slice(-5).forEach(h => txt += `  - ${fmtDate(h.ts)} · ${h.description} [${h.rating}/9]\n`); else txt += '  (nessuno)\n';
+  txt += '▸ HABITS ATTIVE\n';
+  if (state.habits.length) state.habits.forEach(h => txt += `  - ${h.name} (+${h.plusCount}/−${h.minusCount}, diff ${h.difficulty})\n`); else txt += '  (nessuna)\n';
+  txt += '▸ DAILIES\n';
+  if (state.dailies.length) state.dailies.forEach(d => txt += `  - ${d.name} · streak ${d.streak||0} (max ${d.longestStreak||0})\n`); else txt += '  (nessuna)\n';
+  txt += '▸ MISSIONS APERTE\n';
+  const open = state.tasks.filter(t => !t.done);
+  if (open.length) open.slice(0,10).forEach(t => txt += `  - [${'!'.repeat(t.priority||1)}] ${t.title}${t.due ? ' (📅 '+t.due+')' : ''}\n`); else txt += '  (nessuna)\n';
+  txt += '▸ TOTALI\n';
+  txt += `  Note ${state.notes.length} · Tilt ${state.tilts.length} · Hack ${state.hacks.length} · P-up ${state.powerups.length}\n`;
+  txt += `  Tasks ${state.tasks.length} (${state.tasks.filter(t=>t.done).length} fatti) · Pomodori ${state.pomoSessions.length}\n`;
+  txt += `  Sistema attivo da ${fmtShortDate(state.startDate)}\n`;
+  txt += `  Ultimo backup: ${state.lastBackup ? fmtShortDate(state.lastBackup) + ' ('+daysAgo(state.lastBackup)+'d fa)' : 'mai'}\n`;
+  txt += '════════════════════════════════════════\n[ Pacchetto dati v1.5. Incolla nel Progetto Claude per analisi. ]';
+
+  document.getElementById('textExport').innerHTML = `<div class="output">${escapeHtml(txt)}</div>`;
+  window._lastTextExport = txt;
+}
+function copyTextExport() {
+  if (!window._lastTextExport) generateTextExport();
+  navigator.clipboard.writeText(window._lastTextExport || '').then(() => toast('Copiato', 'success')).catch(() => toast('Copia fallita', 'error'));
+}
+
+// ============================================================
+// RESET / FOOTER
+// ============================================================
+function confirmReset() {
+  if (!confirm('Cancellare TUTTI i dati? Backup prima!')) return;
+  if (!confirm('Confermi? Operazione irreversibile.')) return;
+  state = defaultState(); save(); toast('Reset completato', 'success'); renderAll();
+}
+function renderFooter() {
+  const t = state.notes.length + state.tilts.length + state.hacks.length + state.powerups.length + state.moods.length + state.saturations.length + state.tasks.length + state.dailies.length + state.habits.length;
+  document.getElementById('footerStats').textContent = `${t} eventi totali · attivo da ${daysAgo(state.startDate)}d · LV ${state.game.level}`;
+}
+function renderBackupStatus() {
+  const el = document.getElementById('backupStatus');
+  if (!state.lastBackup) { el.innerHTML = '<span style="color:var(--yellow)">Nessun backup eseguito.</span>'; return; }
+  const d = daysAgo(state.lastBackup);
+  let c = 'var(--green)'; if (d >= 14) c = 'var(--yellow)'; if (d >= 21) c = 'var(--red)';
+  el.innerHTML = `<span style="color:${c}">Ultimo backup: ${fmtDate(state.lastBackup)} (${d}d fa)</span>`;
+}
+
+// ============================================================
+// v1.6: MODE TOGGLE (Quiet ↔ Full)
+// ============================================================
+function toggleExamMode() {
+  if (state.settings.examMode) {
+    // Currently quiet, switching to full
+    if (!confirm('Passare a MODALITÀ COMPLETA?\n\nAttiva: XP, livelli, avatar, HP, token, reward shop, animazioni level-up.\n\nConsigliata solo se NON sei in fase di stress (es. esami).')) return;
+    state.settings.examMode = false;
+    toast('Modalità Completa attiva', 'xp');
+  } else {
+    // Currently full, switching to quiet
+    state.settings.examMode = true;
+    toast('Quiet Mode attiva — i tuoi dati restano', 'success');
+  }
+  save();
+  renderAll();
+}
+
+function renderModeToggle() {
+  const toggle = document.getElementById('modeToggle');
+  if (!toggle) return;
+  const icon = document.getElementById('modeIcon');
+  const label = document.getElementById('modeLabel');
+  const desc = document.getElementById('modeDesc');
+  if (state.settings.examMode) {
+    toggle.classList.remove('full');
+    icon.textContent = '🌙';
+    label.textContent = 'QUIET MODE · ATTIVA';
+    desc.textContent = 'No XP, no penalità. Tracking puro. Tap per attivare Modalità Completa.';
+  } else {
+    toggle.classList.add('full');
+    icon.textContent = '⚡';
+    label.textContent = 'MODALITÀ COMPLETA · ATTIVA';
+    desc.textContent = 'XP, livelli, avatar attivi. Tap per tornare a Quiet Mode.';
+  }
+}
+
+// ============================================================
+// v1.6.1: FX SETTINGS
+// ============================================================
+function setFx(field, value) {
+  if (!state.settings.fx) state.settings.fx = { sound: true, vibrate: true, anim: 'standard' };
+  if (field === 'sound' || field === 'vibrate') {
+    state.settings.fx[field] = !!value;
+    if (field === 'sound' && value) {
+      // give a small audible confirmation that audio just turned on
+      const ctx = getAudioCtx();
+      if (ctx && ctx.state === 'suspended') { try { ctx.resume(); } catch(e){} }
+      _tone(700, 0.08, {type:'sine', vol:0.06});
+    }
+    if (field === 'vibrate' && value) vibe(40);
+  } else if (field === 'anim') {
+    if (!['standard','reduced','off'].includes(value)) value = 'standard';
+    state.settings.fx.anim = value;
+    applyAnimMode();
+  }
+  save();
+  toast('Preferenza salvata', 'success');
+}
+
+function renderFxToggles() {
+  const fx = state.settings.fx || { sound:true, vibrate:true, anim:'standard' };
+  const sEl = document.getElementById('fxSound');
+  const vEl = document.getElementById('fxVibrate');
+  const aEl = document.getElementById('fxAnim');
+  if (sEl) sEl.checked = !!fx.sound;
+  if (vEl) vEl.checked = !!fx.vibrate;
+  if (aEl) aEl.value = fx.anim || 'standard';
+}
+
+// v1.7: render SYS controls (phase, secondo mondo, HP soft)
+function renderV17SysControls() {
+  const phaseSel = document.getElementById('phaseSelect');
+  if (phaseSel) phaseSel.value = getCurrentPhase();
+  const sm2 = document.getElementById('sm2Toggle');
+  if (sm2) sm2.checked = !!state.settings.secondoMondo;
+  const sm2Row = document.getElementById('sm2CompanionRow');
+  if (sm2Row) sm2Row.style.display = state.settings.secondoMondo ? '' : 'none';
+  const sm2Name = document.getElementById('sm2CompName');
+  if (sm2Name) sm2Name.textContent = getCompanionName();
+  const hp = document.getElementById('hpSoftToggle');
+  if (hp) hp.checked = !!state.settings.hpSoft?.enabled;
+}
+
+function toggleHpSoft() {
+  if (!state.settings.hpSoft) state.settings.hpSoft = { enabled: false, dmgPerMiss: 2, maxDmgPerDay: 6, regenPerLog: 5 };
+  state.settings.hpSoft.enabled = !state.settings.hpSoft.enabled;
+  save();
+  toast(state.settings.hpSoft.enabled ? 'HP soft attivato' : 'HP soft disattivato', 'success');
+  renderAll();
+}
+
+// ============================================================
+// v1.6: WELCOME MODAL on first launch
+// ============================================================
+function showWelcomeIfNeeded() {
+  if (state.settings.welcomeShown) return;
+  const host = document.getElementById('welcomeHost');
+  if (!host) return;
+  host.innerHTML = `<div class="welcome-bg">
+    <div class="welcome-box">
+      <div class="welcome-title">O.D.I.N. v1.6</div>
+      <div class="welcome-text">
+        Benvenuto. Questa versione integra task management, abitudini e tracking.<br><br>
+        Scegli con quale <strong>modalità</strong> iniziare. Puoi cambiare in qualsiasi momento da SYS.
+      </div>
+      <div class="welcome-choices">
+        <button class="welcome-btn recommended" onclick="chooseMode(true)">
+          <div class="welcome-btn-title">🌙 QUIET MODE (consigliato)</div>
+          <div class="welcome-btn-desc">Tracking puro. Nessun XP, livello o penalità. Le abitudini/task funzionano come check semplici. Indicata in fasi di stress (esami).</div>
+        </button>
+        <button class="welcome-btn" onclick="chooseMode(false)">
+          <div class="welcome-btn-title">⚡ MODALITÀ COMPLETA</div>
+          <div class="welcome-btn-desc">Gamification piena: XP, livelli, avatar cyberpunk, token, reward shop. Più stimolo, più rumore. Da attivare in periodi tranquilli.</div>
+        </button>
+      </div>
+    </div>
+  </div>`;
+}
+
+function chooseMode(quiet) {
+  state.settings.examMode = !!quiet;
+  state.settings.welcomeShown = true;
+  save();
+  document.getElementById('welcomeHost').innerHTML = '';
+  renderAll();
+  toast(quiet ? 'Quiet Mode attiva' : 'Modalità Completa attiva', 'success');
+}
+
+// ============================================================
+// v1.7: PHASE AWARENESS
+// ============================================================
+function getCurrentPhase() {
+  // If explicit setting → use it. Otherwise infer from examDate.
+  const explicit = state.settings.phase;
+  if (explicit && ['pre-exam','transition','normal'].includes(explicit)) {
+    // Auto-advance from pre-exam to transition once exam date passes
+    if (explicit === 'pre-exam' && state.settings.examDate) {
+      const days = daysToExam(state.settings.examDate);
+      if (days !== null && days < 0) return 'transition';
+    }
+    return explicit;
+  }
+  return 'pre-exam';
+}
+
+function renderPhaseBanner() {
+  const host = document.getElementById('phaseBanner');
+  if (!host) return;
+  const phase = getCurrentPhase();
+  const labels = {
+    'pre-exam': 'FASE: PRE-ESAME · alta priorità riflessione',
+    'transition': 'FASE: TRANSIZIONE · esami chiusi, nuova struttura',
+    'normal': 'FASE: NORMALE · sistema in mantenimento'
+  };
+  host.innerHTML = `<div class="phase-banner ${phase}"><span class="ph-dot"></span> ${labels[phase]}</div>`;
+}
+
+function setPhase(p) {
+  if (!['pre-exam','transition','normal'].includes(p)) return;
+  state.settings.phase = p;
+  save(); renderAll();
+  toast('Fase aggiornata: ' + p, 'success');
+}
+
+// ============================================================
+// v1.7: PLAN ROUTINES
+// ============================================================
+function getTodayRoutineState(blockId) {
+  const today = todayKey();
+  const todayLogs = state.routineLog.filter(r => dayKey(r.ts) === today && r.blockId === blockId);
+  const done = new Set(todayLogs.filter(r => r.action === 'done').map(r => r.itemIdx));
+  const skipped = new Set(todayLogs.filter(r => r.action === 'skip').map(r => r.itemIdx));
+  return { done, skipped };
+}
+
+function markRoutineItem(blockId, itemIdx, action) {
+  const today = todayKey();
+  // Remove any existing log for this item today
+  state.routineLog = state.routineLog.filter(r => !(dayKey(r.ts) === today && r.blockId === blockId && r.itemIdx === itemIdx));
+  // If action is not "undo", add new log
+  if (action !== 'undo') {
+    state.routineLog.push({ id: uid(), ts: new Date().toISOString(), blockId, itemIdx, action });
+    if (action === 'done') { FX.task_done(); VIBE.task_done(); }
+  }
+  save(); renderPlan(); renderDayBoard();
+}
+
+function renderPlan() {
+  const host = document.getElementById('planRoutinesList');
+  if (!host) return;
+  const blocks = state.settings.planRoutines || DEFAULT_ROUTINES;
+  const nowHour = new Date().getHours();
+  // crude active-block detection: based on timeHint first hour
+  let html = '';
+  blocks.forEach(b => {
+    const { done, skipped } = getTodayRoutineState(b.id);
+    const total = b.items.length;
+    const doneCount = done.size;
+    const hint = b.timeHint || '';
+    const firstHour = parseInt((hint.match(/\d+/) || ['0'])[0]) || 0;
+    const lastHour = parseInt((hint.match(/-(\d+)/) || ['0','0'])[1]) || 0;
+    const isActive = firstHour && lastHour && nowHour >= firstHour && nowHour <= lastHour;
+    html += `<div class="routine-block ${isActive ? 'active' : ''}">
+      <div class="routine-block-head">
+        <div class="routine-block-title">${b.emoji} ${escapeHtml(b.label)}</div>
+        <div class="routine-block-time">${escapeHtml(hint)} · ${doneCount}/${total}</div>
+      </div>`;
+    b.items.forEach((item, idx) => {
+      const isDone = done.has(idx);
+      const isSkipped = skipped.has(idx);
+      const stateClass = isDone ? 'done' : (isSkipped ? 'skipped' : '');
+      const action = isDone ? 'undo' : 'done';
+      html += `<div class="routine-item ${stateClass}">
+        <span class="routine-check ${isDone ? 'done' : ''}" onclick="markRoutineItem('${b.id}', ${idx}, '${action}')">${isDone ? '✓' : ''}</span>
+        <span class="routine-text" onclick="markRoutineItem('${b.id}', ${idx}, '${action}')">${escapeHtml(item)}</span>
+        ${!isDone && !isSkipped ? `<button class="routine-skip-btn" onclick="markRoutineItem('${b.id}', ${idx}, 'skip')">salta</button>` : ''}
+      </div>`;
+    });
+    html += '</div>';
+  });
+  host.innerHTML = html;
+}
+
+// ============================================================
+// v1.7: DAY BOARD (Stato giornata)
+// ============================================================
+function renderDayBoard() {
+  const host = document.getElementById('dayBoard');
+  if (!host) return;
+  const today = todayKey();
+  // Routine progress
+  const totalRoutineItems = (state.settings.planRoutines || DEFAULT_ROUTINES).reduce((sum, b) => sum + b.items.length, 0);
+  const doneRoutineItems = state.routineLog.filter(r => dayKey(r.ts) === today && r.action === 'done').length;
+  // Daily progress
+  const todayDailies = state.dailies.filter(d => shouldRunToday(d, today));
+  const doneDailies = todayDailies.filter(d => d.completedToday).length;
+  // Task progress
+  const todayTasks = state.tasks.filter(t => !t.due || t.due <= today);
+  const doneTasks = todayTasks.filter(t => t.done).length;
+  // Pomo
+  const todayPomos = state.pomoSessions.filter(p => dayKey(p.ts) === today).length;
+  
+  const pct = (a, b) => b > 0 ? Math.round((a / b) * 100) : 0;
+  const r1 = pct(doneRoutineItems, totalRoutineItems);
+  const r2 = pct(doneDailies, todayDailies.length);
+  const r3 = pct(doneTasks, todayTasks.length);
+  const r4 = Math.min(100, todayPomos * 25); // 4 pomo = 100%
+  
+  // Missing items list
+  const missingParts = [];
+  const missingRoutine = totalRoutineItems - doneRoutineItems;
+  if (missingRoutine > 0) missingParts.push(`<b>${missingRoutine}</b> routine`);
+  const missingDailies = todayDailies.length - doneDailies;
+  if (missingDailies > 0) missingParts.push(`<b>${missingDailies}</b> daily`);
+  const missingTasks = todayTasks.length - doneTasks;
+  if (missingTasks > 0) missingParts.push(`<b>${missingTasks}</b> task`);
+  
+  host.innerHTML = `<div class="day-board">
+    <div class="day-board-title">STATO GIORNATA · ${new Date().toLocaleDateString('it-IT', { day:'numeric', month:'long' })}</div>
+    <div class="day-board-row"><span class="day-board-label">Routine</span><div class="day-board-bar"><div class="day-board-bar-fill routine" style="width:${r1}%"></div></div><span class="day-board-val">${doneRoutineItems}/${totalRoutineItems}</span></div>
+    <div class="day-board-row"><span class="day-board-label">Dailies</span><div class="day-board-bar"><div class="day-board-bar-fill daily" style="width:${r2}%"></div></div><span class="day-board-val">${doneDailies}/${todayDailies.length}</span></div>
+    <div class="day-board-row"><span class="day-board-label">Mission</span><div class="day-board-bar"><div class="day-board-bar-fill task" style="width:${r3}%"></div></div><span class="day-board-val">${doneTasks}/${todayTasks.length}</span></div>
+    <div class="day-board-row"><span class="day-board-label">Pomo</span><div class="day-board-bar"><div class="day-board-bar-fill pomo" style="width:${r4}%"></div></div><span class="day-board-val">${todayPomos}</span></div>
+    ${missingParts.length ? `<div class="day-board-pending">MANCA: ${missingParts.join(' · ')}</div>` : '<div class="day-board-pending" style="color:var(--green)">✓ Giornata completa!</div>'}
+  </div>`;
+}
+
+// ============================================================
+// v1.7: STIMULI library + random
+// ============================================================
+function showRandomStimulus() {
+  const s = STIMULI[Math.floor(Math.random() * STIMULI.length)];
+  const catLabel = { create:'CREATIVE', hack:'ANTI-BOREDOM', brain:'BRAIN', reset:'RESET' }[s.cat] || 'STIMULUS';
+  const host = document.getElementById('stimulusHost');
+  host.innerHTML = `<div class="stim-modal" onclick="closeStimulus(event)">
+    <div class="stim-modal-box" onclick="event.stopPropagation()">
+      <div class="stim-cat">${catLabel}</div>
+      <div class="stim-emoji">${s.emoji}</div>
+      <div class="stim-text">${escapeHtml(s.text)}</div>
+      <div class="stim-actions">
+        <button class="btn btn-magenta" onclick="acceptStimulus()">✓ Lo faccio</button>
+        <button class="btn btn-ghost" onclick="showRandomStimulus()">🎲 Altro</button>
+        <button class="btn btn-ghost" onclick="closeStimulus()">chiudi</button>
+      </div>
+    </div>
+  </div>`;
+  FX.task_done(); VIBE.tap();
+}
+function closeStimulus(e) {
+  if (e && e.target && !e.target.classList.contains('stim-modal')) return;
+  document.getElementById('stimulusHost').innerHTML = '';
+}
+function acceptStimulus() {
+  toast('Stimolo accettato. Vai!', 'success');
+  closeStimulus();
+}
+
+// ============================================================
+// v1.7: IDEAS / Creative log
+// ============================================================
+function toggleIdeaForm() {
+  const f = document.getElementById('ideaFormBox');
+  if (f) f.style.display = f.style.display === 'none' ? 'block' : 'none';
+}
+function addIdea() {
+  const ta = document.getElementById('ideaInput');
+  const t = ta.value.trim();
+  if (!t) return toast('Idea vuota', 'error');
+  if (t.length > 5000) return toast('Idea troppo lunga (max 5000 char)', 'error');
+  const cat = document.getElementById('ideaCategory').value || '';
+  state.ideas.push({ id: uid(), ts: new Date().toISOString(), text: t, category: cat });
+  FX.task_done(); VIBE.task_done();
+  ta.value = '';
+  showCompanionMsg(pickCompanionMsg('on_idea_logged'));
+  checkAchievements();
+  save(); toast('Idea catturata', 'success'); renderAll();
+}
+function deleteIdea(id) {
+  if (!confirm('Eliminare questa idea?')) return;
+  state.ideas = state.ideas.filter(i => i.id !== id);
+  save(); renderIdeas();
+}
+function renderIdeas() {
+  const host = document.getElementById('ideasList');
+  if (!host) return;
+  if (!state.ideas.length) {
+    host.innerHTML = '<div class="empty">Nessuna idea ancora. Cattura la prima.</div>'; return;
+  }
+  const catEmoji = { code:'💻', music:'🎵', art:'🎨', write:'✍️', business:'💼', hobby:'🎮', other:'💡' };
+  host.innerHTML = state.ideas.slice().reverse().slice(0, 30).map(i => `
+    <div class="idea-card">
+      ${i.category ? `<span class="idea-tag">${catEmoji[i.category] || ''} ${i.category}</span>` : ''}
+      <div>${escapeHtml(i.text)}</div>
+      <div class="idea-card-meta">${fmtDate(i.ts)} · <span style="cursor:pointer" onclick="deleteIdea('${i.id}')">[x]</span></div>
+    </div>
+  `).join('');
+}
+
+// ============================================================
+// v1.7: ACHIEVEMENTS
+// ============================================================
+function checkAchievements() {
+  let unlocked = false;
+  ACHIEVEMENTS.forEach(a => {
+    if (state.achievements.includes(a.id)) return;
+    if (a.test(state)) {
+      state.achievements.push(a.id);
+      unlocked = true;
+      // celebration toast + companion msg
+      setTimeout(() => {
+        showAchievementUnlock(a);
+      }, 300);
+    }
+  });
+  if (unlocked) save();
+}
+function showAchievementUnlock(a) {
+  const host = document.getElementById('achievementHost');
+  if (!host) return;
+  host.innerHTML = `<div class="stim-modal" onclick="closeAchievementToast()">
+    <div class="stim-modal-box" style="border-color:var(--yellow)">
+      <div class="stim-cat" style="color:var(--yellow)">ACHIEVEMENT SBLOCCATO</div>
+      <div class="stim-emoji">${a.emoji}</div>
+      <div class="stim-text" style="color:var(--yellow)"><b>${escapeHtml(a.name)}</b><br><span style="font-size:12px;color:var(--txt-dim)">${escapeHtml(a.desc)}</span></div>
+      <div class="stim-actions">
+        <button class="btn" onclick="closeAchievementToast()">✓ Bello</button>
+      </div>
+    </div>
+  </div>`;
+  FX.levelup(); VIBE.levelup();
+  showCompanionMsg(pickCompanionMsg('on_achievement'));
+}
+function closeAchievementToast() {
+  document.getElementById('achievementHost').innerHTML = '';
+}
+function renderAchievements() {
+  const host = document.getElementById('achievementsList');
+  if (!host) return;
+  host.innerHTML = ACHIEVEMENTS.map(a => {
+    const unlocked = state.achievements.includes(a.id);
+    return `<div class="achievement-card ${unlocked ? 'unlocked' : 'locked'}">
+      <div class="achievement-emoji">${a.emoji}</div>
+      <div>
+        <div class="achievement-name">${escapeHtml(a.name)}</div>
+        <div class="achievement-desc">${escapeHtml(a.desc)}</div>
+      </div>
+      <div class="achievement-prog">${unlocked ? '✓' : a.prog(state)}</div>
+    </div>`;
+  }).join('');
+}
+
+// ============================================================
+// v1.7: WORLD / SECONDO MONDO
+// ============================================================
+function checkRoomUnlocks() {
+  let newUnlocks = [];
+  ROOMS.forEach(r => {
+    if (state.world.roomsUnlocked.includes(r.id)) return;
+    if (r.test(state)) {
+      state.world.roomsUnlocked.push(r.id);
+      newUnlocks.push(r);
+    }
+  });
+  if (newUnlocks.length) {
+    save();
+    setTimeout(() => {
+      const r = newUnlocks[0];
+      showCompanionMsg(`Stanza sbloccata: ${r.emoji} ${r.name}. ${pickCompanionMsg('on_room_unlock')}`);
+    }, 400);
+  }
+}
+function renderWorldMap() {
+  const host = document.getElementById('worldMap');
+  if (!host) return;
+  const unlocked = state.world.roomsUnlocked;
+  // SVG cityscape: 5 nodes that light up as unlocked
+  const colors = ['#00ff88', '#00f0ff', '#ff2d92', '#b347ff', '#ffe600'];
+  const positions = [
+    {x:60, y:80, label:ROOMS[0].emoji, id:ROOMS[0].id},
+    {x:140, y:60, label:ROOMS[1].emoji, id:ROOMS[1].id},
+    {x:220, y:80, label:ROOMS[2].emoji, id:ROOMS[2].id},
+    {x:100, y:140, label:ROOMS[3].emoji, id:ROOMS[3].id},
+    {x:180, y:140, label:ROOMS[4].emoji, id:ROOMS[4].id}
+  ];
+  // ideas as small scintille (sparks)
+  const sparks = state.ideas.slice(-8).map((_, i) => {
+    const angle = (i / 8) * Math.PI * 2;
+    return { x: 140 + Math.cos(angle) * 95, y: 100 + Math.sin(angle) * 55, opacity: 0.4 + (i / 16) };
+  });
+  let svg = `<svg viewBox="0 0 280 200" style="width:100%;max-width:420px">
+    <defs>
+      <radialGradient id="ngrad" cx="50%" cy="50%" r="50%">
+        <stop offset="0%" stop-color="#00f0ff" stop-opacity="0.3"/>
+        <stop offset="100%" stop-color="#0e0e16" stop-opacity="0"/>
+      </radialGradient>
+      <filter id="glow2"><feGaussianBlur stdDeviation="2"/></filter>
+    </defs>
+    <!-- ground gradient -->
+    <ellipse cx="140" cy="170" rx="130" ry="20" fill="url(#ngrad)"/>
+    <!-- grid lines (cyberpunk floor) -->
+    <g stroke="#1c1c2a" stroke-width="0.5" opacity="0.5">
+      <line x1="0" y1="180" x2="280" y2="180"/>
+      <line x1="0" y1="190" x2="280" y2="190"/>
+      <line x1="40" y1="170" x2="20" y2="200"/>
+      <line x1="140" y1="170" x2="140" y2="200"/>
+      <line x1="240" y1="170" x2="260" y2="200"/>
+    </g>
+    <!-- connection lines between unlocked rooms -->
+    <g stroke="#00f0ff" stroke-width="1" opacity="0.3">
+      ${unlocked.length >= 2 ? positions.filter(p => unlocked.includes(p.id)).map((p, i, arr) => {
+        if (i === 0) return '';
+        const prev = arr[i-1];
+        return `<line x1="${prev.x}" y1="${prev.y}" x2="${p.x}" y2="${p.y}"/>`;
+      }).join('') : ''}
+    </g>
+    <!-- sparks (ideas) -->
+    ${sparks.map(s => `<circle cx="${s.x}" cy="${s.y}" r="1.5" fill="#ff2d92" opacity="${s.opacity}"/>`).join('')}
+    <!-- room nodes -->
+    ${positions.map((p, i) => {
+      const isUnlocked = unlocked.includes(p.id);
+      const c = colors[i];
+      return `<g>
+        <circle cx="${p.x}" cy="${p.y}" r="${isUnlocked ? 18 : 12}" fill="${isUnlocked ? c : '#15151f'}" fill-opacity="${isUnlocked ? '0.2' : '1'}" stroke="${isUnlocked ? c : '#2a2a3e'}" stroke-width="${isUnlocked ? 2 : 1}" stroke-dasharray="${isUnlocked ? '' : '3,2'}" ${isUnlocked ? 'filter="url(#glow2)"' : ''}/>
+        <text x="${p.x}" y="${p.y + 6}" text-anchor="middle" font-size="${isUnlocked ? 18 : 14}" opacity="${isUnlocked ? 1 : 0.4}">${p.label}</text>
+      </g>`;
+    }).join('')}
+    <!-- title -->
+    <text x="140" y="22" text-anchor="middle" font-size="9" letter-spacing="3" fill="#8888a0" font-family="monospace">CITTÀ · ${unlocked.length}/5 SETTORI</text>
+  </svg>`;
+  host.innerHTML = svg;
+}
+
+function renderWorldRooms() {
+  const host = document.getElementById('worldRooms');
+  if (!host) return;
+  host.innerHTML = ROOMS.map(r => {
+    const unlocked = state.world.roomsUnlocked.includes(r.id);
+    return `<div class="world-room ${unlocked ? 'unlocked' : 'locked'}">
+      <div class="world-room-emoji">${r.emoji}</div>
+      <div class="world-room-name">${escapeHtml(r.name)}</div>
+      <div class="world-room-area">${escapeHtml(r.area)}</div>
+      <div class="world-room-prog">${unlocked ? '✓ Sbloccata' : r.prog(state)}</div>
+    </div>`;
+  }).join('');
+}
+
+function renderWorld() {
+  if (!state.settings.secondoMondo) return;
+  renderWorldMap();
+  renderWorldRooms();
+  const sub = document.getElementById('worldSub');
+  if (sub) {
+    const u = state.world.roomsUnlocked.length;
+    sub.textContent = `${u}/5 stanze · ${state.ideas.length} idee · ${state.achievements.length} achievement`;
+  }
+}
+
+function toggleSecondoMondo() {
+  if (!state.settings.secondoMondo) {
+    // Activating
+    if (state.settings.examMode) {
+      if (!confirm('Attivare il Secondo Mondo richiede Modalità Completa.\n\nPassare a Modalità Completa adesso?')) return;
+      state.settings.examMode = false;
+    }
+    state.settings.secondoMondo = true;
+    toast('🌌 Secondo Mondo attivato', 'xp');
+    showCompanionMsg('Mondo personale online. Esplora la nuova tab WORLD.');
+  } else {
+    state.settings.secondoMondo = false;
+    toast('🌌 Secondo Mondo disattivato (dati conservati)', '');
+  }
+  save();
+  renderAll();
+}
+
+// ============================================================
+// v1.7: COMPANION
+// ============================================================
+function getCompanionName() { return state.settings.companionName || 'ODIN-1'; }
+function pickCompanionMsg(category) {
+  const arr = COMPANION_MSGS[category] || COMPANION_MSGS.daily;
+  return arr[Math.floor(Math.random() * arr.length)];
+}
+function showCompanionMsg(msg) {
+  if (!msg) return;
+  state.companion.lastMsg = msg;
+  state.companion.lastMsgAt = new Date().toISOString();
+  save();
+  renderCompanionBubble();
+}
+function renderCompanionBubble() {
+  const host = document.getElementById('companionBubble');
+  if (!host) return;
+  const msg = state.companion.lastMsg;
+  if (!msg) { host.innerHTML = ''; return; }
+  // Only show recent (< 4 hours) on STATUS
+  const age = state.companion.lastMsgAt ? Date.now() - new Date(state.companion.lastMsgAt).getTime() : Infinity;
+  if (age > 4 * 3600 * 1000) { host.innerHTML = ''; return; }
+  host.innerHTML = `<div class="companion-bubble">
+    <div class="companion-avatar">🛸</div>
+    <div class="companion-body">
+      <div class="companion-name">${escapeHtml(getCompanionName())}</div>
+      <div class="companion-msg">${escapeHtml(msg)}</div>
+    </div>
+    <button class="companion-close" onclick="dismissCompanion()" title="chiudi">×</button>
+  </div>`;
+}
+function dismissCompanion() {
+  state.companion.lastMsg = null;
+  save();
+  renderCompanionBubble();
+}
+function askCompanionName() {
+  const cur = state.settings.companionName || '';
+  const n = prompt('Come vuoi chiamare il tuo companion?\n(es. ARIA, NOX, KAEL, GLYPH...)', cur || 'ODIN-1');
+  if (n && n.trim()) {
+    state.settings.companionName = n.trim().slice(0, 20);
+    save();
+    showCompanionMsg(`Identità acquisita: ${state.settings.companionName}. Operativo.`);
+    renderAll();
+  }
+}
+
+// ============================================================
+// v1.7: WELCOME BANNER (one-time per version)
+// ============================================================
+function renderV17Banner() {
+  const host = document.getElementById('v17Banner');
+  if (!host) return;
+  if (state.settings.v17Shown) { host.innerHTML = ''; return; }
+  host.innerHTML = `<div class="v17-banner">
+    <button class="v17-banner-close" onclick="dismissV17Banner()">×</button>
+    <div class="v17-banner-title">v1.7 ONLINE</div>
+    <div class="v17-banner-text">
+      <b>Nuovo:</b> tab PLAN per la routine giornaliera, stato giornata in cima, bottone 🎲 stimoli, Idee creative, Achievement. <br>
+      <b>Opzionale:</b> attiva il <b>🌌 Secondo Mondo</b> dal pannello SYS per la modalità immersiva.
+    </div>
+  </div>`;
+}
+function dismissV17Banner() {
+  state.settings.v17Shown = true;
+  save();
+  renderV17Banner();
+}
+
+// ============================================================
+// MASTER RENDER
+// ============================================================
+function renderAll() {
+  renderSystemStatus();
+  checkDailyReset();
+  // v1.7: check unlocks and achievements first (side-effect free render)
+  checkRoomUnlocks();
+  checkAchievements();
+  // v1.7: show/hide WORLD tab based on toggle
+  const wTab = document.getElementById('tabWorld');
+  if (wTab) wTab.style.display = state.settings.secondoMondo ? '' : 'none';
+  
+  renderHeaderStatus(); renderCharCard(); renderBackupBanner();
+  // v1.7: new STATUS widgets
+  renderV17Banner();
+  renderPhaseBanner();
+  renderCompanionBubble();
+  renderDayBoard();
+  renderStatusGrid(); renderTodayOps(); renderRecentNotes(); renderQuickPowerups();
+  renderHabits(); renderDailies(); renderTasks(); renderRewards(); renderPomoStats();
+  renderGoals(); renderListsManager(); renderCustomPowerups();
+  renderArchive(); renderReview(); renderAchievements();
+  // v1.7: new renderers
+  renderPlan();
+  renderWorld();
+  renderIdeas();
+  renderBackupStatus(); renderFooter(); loadSettingsToInputs();
+  renderModeToggle();
+  renderFxToggles();
+  renderV17SysControls();
+  updatePomoDisplay();
+  showWelcomeIfNeeded();
+}
+
+renderMoodScale(); renderSatScale(); renderTiltScale(); renderHackScale();
+applyAnimMode();
+
+// v1.7: companion greeting once per day (if no recent msg)
+(function initCompanion(){
+  try {
+    const lastMsgAt = state.companion?.lastMsgAt;
+    const age = lastMsgAt ? Date.now() - new Date(lastMsgAt).getTime() : Infinity;
+    if (age > 12 * 3600 * 1000) {  // no msg in last 12h
+      showCompanionMsg(pickCompanionMsg('greeting'));
+    }
+  } catch(e) {}
+})();
+
+renderAll();
+// v1.8.1: restore pomodoro state (auto-complete se scaduto in background, riprendi ticker se attivo)
+pomoRestore();
+
+
+
+// ============================================================
+// v1.8.4 · STATO SISTEMA + DIAGNOSTICO A PAPÀ
+// ============================================================
+
+// Cattura errori JS runtime (ultimi 5)
+(function() {
+  if (!state.settings.errLog) state.settings.errLog = [];
+  window.addEventListener('error', function(e) {
+    try {
+      var msg = (e.message || 'unknown') + ' @ ' + (e.filename || '?').split('/').pop() + ':' + (e.lineno || '?');
+      state.settings.errLog = state.settings.errLog || [];
+      state.settings.errLog.unshift({ ts: new Date().toISOString(), msg: msg.slice(0, 200) });
+      if (state.settings.errLog.length > 5) state.settings.errLog = state.settings.errLog.slice(0, 5);
+      save();
+    } catch(_) {}
+  });
+})();
+
+function getStorageUsage() {
+  try {
+    var raw = localStorage.getItem('odin_v12_francesco') || '';
+    var bytes = new Blob([raw]).size;
+    return bytes < 1024 ? bytes + ' B' : (bytes / 1024).toFixed(1) + ' KB';
+  } catch(e) { return 'n/d'; }
+}
+
+function getDeviceInfo() {
+  var ua = navigator.userAgent;
+  var browser = 'altro';
+  if (/Chrome\//.test(ua) && !/Edg/.test(ua)) browser = 'Chrome';
+  else if (/Firefox/.test(ua)) browser = 'Firefox';
+  else if (/Safari/.test(ua) && !/Chrome/.test(ua)) browser = 'Safari';
+  else if (/Edg/.test(ua)) browser = 'Edge';
+  else if (/SamsungBrowser/.test(ua)) browser = 'Samsung';
+  var os = /Android/.test(ua) ? 'Android' : /iPhone|iPad/.test(ua) ? 'iOS' : /Windows/.test(ua) ? 'Windows' : /Mac/.test(ua) ? 'macOS' : 'altro';
+  return browser + ' / ' + os;
+}
+
+function isPWA() {
+  return window.matchMedia && window.matchMedia('(display-mode: standalone)').matches;
+}
+
+function buildDiagnosticReport() {
+  var s = state;
+  var last = s.lastBackup ? new Date(s.lastBackup).toLocaleDateString('it-IT') : 'mai';
+  var notesN = (s.notes || []).length;
+  var moodN = (s.moods || []).length;
+  var tiltN = (s.tilts || []).length;
+  var puN = (s.powerups || []).length;
+  var taskDone = (s.tasks || []).filter(function(t){return t.done}).length;
+  var taskTot = (s.tasks || []).length;
+  var dailiesActive = (s.dailies || []).filter(function(d){return d.completedToday}).length;
+  var dailiesTot = (s.dailies || []).length;
+  var pomoTot = (s.pomoSessions || []).length;
+  var pomoMin = (s.pomoSessions || []).reduce(function(a,b){return a + (b.duration || 0)}, 0);
+  var xp = (s.game && s.game.totalXP) || 0;
+  var lvl = (s.game && s.game.level) || 1;
+  var errs = (s.settings.errLog || []);
+  var errStr = errs.length ? '\n\n⚠ ERRORI RECENTI:\n' + errs.map(function(e){return '· ' + e.ts.slice(0,16) + ' — ' + e.msg}).join('\n') : '';
+
+  return '▸ ODIN DIAGNOSTIC REPORT ▸\n' +
+    'versione: ' + VERSION + '\n' +
+    'browser: ' + getDeviceInfo() + '\n' +
+    'PWA mode: ' + (isPWA() ? 'sì' : 'no') + '\n' +
+    'storage: ' + getStorageUsage() + '\n' +
+    'ultimo backup: ' + last + '\n' +
+    '\n— DATI —\n' +
+    'note: ' + notesN + '\n' +
+    'mood log: ' + moodN + '\n' +
+    'tilt: ' + tiltN + '\n' +
+    'power-up usati: ' + puN + '\n' +
+    'task: ' + taskDone + '/' + taskTot + '\n' +
+    'dailies oggi: ' + dailiesActive + '/' + dailiesTot + '\n' +
+    'pomodoro: ' + pomoTot + ' sessioni · ' + pomoMin + ' min\n' +
+    'XP totale: ' + xp + ' · Livello ' + lvl +
+    errStr + '\n\n▸ end diagnostic ▸';
+}
+
+function sendDiagnostic() {
+  var report = buildDiagnosticReport();
+  if (navigator.share) {
+    navigator.share({
+      title: 'O.D.I.N. Diagnostic',
+      text: report
+    }).then(function() {
+      toast('Inviato', 'success');
+    }).catch(function(err) {
+      // utente annulla, no errore reale
+      if (err.name !== 'AbortError') {
+        copyDiagnosticFallback(report);
+      }
+    });
+  } else {
+    copyDiagnosticFallback(report);
+  }
+}
+
+function copyDiagnosticFallback(report) {
+  try {
+    navigator.clipboard.writeText(report).then(function() {
+      toast('Copiato! Incolla in WhatsApp', 'success');
+    }).catch(function() {
+      window.prompt('Copia questo testo e mandalo:', report);
+    });
+  } catch(e) {
+    window.prompt('Copia questo testo e mandalo:', report);
+  }
+}
+
+function renderSystemStatus() {
+  var host = document.getElementById('sysStatusHost');
+  if (!host) return;
+  var s = state;
+  var last = s.lastBackup ? new Date(s.lastBackup).toLocaleDateString('it-IT') : 'mai';
+  var lastClass = !s.lastBackup ? 'error' : ((Date.now() - new Date(s.lastBackup).getTime()) > 14*86400000 ? 'warn' : 'ok');
+  var errs = (s.settings.errLog || []);
+  var pwaStatus = isPWA() ? '<span class="sys-val ok">attiva</span>' : '<span class="sys-val warn">no</span>';
+
+  host.innerHTML = '<div class="sys-status">' +
+    '<div class="sys-status-title">◇ stato sistema</div>' +
+    '<div class="sys-row"><span class="sys-label">versione</span><span class="sys-val ok">' + VERSION + '</span></div>' +
+    '<div class="sys-row"><span class="sys-label">browser</span><span class="sys-val">' + getDeviceInfo() + '</span></div>' +
+    '<div class="sys-row"><span class="sys-label">modalità PWA</span>' + pwaStatus + '</div>' +
+    '<div class="sys-row"><span class="sys-label">storage</span><span class="sys-val">' + getStorageUsage() + '</span></div>' +
+    '<div class="sys-row"><span class="sys-label">ultimo backup</span><span class="sys-val ' + lastClass + '">' + last + '</span></div>' +
+    '<div class="sys-row"><span class="sys-label">errori recenti</span><span class="sys-val ' + (errs.length > 0 ? 'error' : 'ok') + '">' + errs.length + '</span></div>' +
+    (errs.length > 0 ? '<div class="sys-err-log">' + errs.map(function(e){return e.ts.slice(11,16) + ' · ' + e.msg}).join('<br>') + '</div>' : '') +
+    '<button class="sys-send-btn" onclick="sendDiagnostic()">📡 invia diagnostico a papà</button>' +
+    '<div class="sys-help">testo già pronto, scegli WhatsApp dal menu condividi</div>' +
+    '</div>';
+}
+
+window.addEventListener('beforeunload', () => save());
+console.log('%cO.D.I.N. v' + VERSION + ' loaded · Mode: ' + (state.settings.examMode ? 'Quiet' : 'Full') + ' · FX: ' + (state.settings.fx?.sound?'🔊':'🔇') + (state.settings.fx?.vibrate?'📳':'') + ' anim:' + (state.settings.fx?.anim||'standard'), 'color:#00f0ff;font-family:monospace');
+</script>
+</body>
+</html>
