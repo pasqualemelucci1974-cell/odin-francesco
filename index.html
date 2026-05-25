@@ -1,1 +1,1523 @@
-$(cat /mnt/data/index.html)
+<!DOCTYPE html>
+<html lang="it">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<meta name="theme-color" content="#0a0a0f">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<title>O.D.I.N. // v1.8.4</title>
+<link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20viewBox%3D%220%200%2064%2064%22%3E%3Crect%20width%3D%2264%22%20height%3D%2264%22%20rx%3D%228%22%20fill%3D%22%2307070b%22%2F%3E%3Cdefs%3E%3Cfilter%20id%3D%22g%22%20x%3D%22-30%25%22%20y%3D%22-30%25%22%20width%3D%22160%25%22%20height%3D%22160%25%22%3E%3CfeGaussianBlur%20stdDeviation%3D%220.8%22%20result%3D%22b%22%2F%3E%3CfeMerge%3E%3CfeMergeNode%20in%3D%22b%22%2F%3E%3CfeMergeNode%20in%3D%22SourceGraphic%22%2F%3E%3C%2FfeMerge%3E%3C%2Ffilter%3E%3C%2Fdefs%3E%3Cg%20filter%3D%22url%28%23g%29%22%20fill%3D%22none%22%20stroke-linejoin%3D%22round%22%20stroke-linecap%3D%22round%22%20stroke-width%3D%221.6%22%3E%3Cpolygon%20points%3D%2232%2C8%208%2C46%2056%2C46%22%20stroke%3D%22%2300ff88%22%20opacity%3D%220.75%22%2F%3E%3Cpolygon%20points%3D%2218%2C14%204%2C52%2040%2C42%22%20stroke%3D%22%2300f0ff%22%20opacity%3D%220.65%22%2F%3E%3Cpolygon%20points%3D%2246%2C14%2060%2C52%2024%2C42%22%20stroke%3D%22%23b347ff%22%20opacity%3D%220.65%22%2F%3E%3C%2Fg%3E%3Cg%20filter%3D%22url%28%23g%29%22%3E%3Cellipse%20cx%3D%2232%22%20cy%3D%2233%22%20rx%3D%228%22%20ry%3D%225%22%20fill%3D%22%230a0a14%22%20stroke%3D%22%2300f0ff%22%20stroke-width%3D%221.4%22%2F%3E%3Ccircle%20cx%3D%2232%22%20cy%3D%2233%22%20r%3D%223.5%22%20fill%3D%22%2300f0ff%22%2F%3E%3Cellipse%20cx%3D%2232%22%20cy%3D%2233%22%20rx%3D%220.9%22%20ry%3D%223.5%22%20fill%3D%22%231a0033%22%2F%3E%3Ccircle%20cx%3D%2230.5%22%20cy%3D%2231.5%22%20r%3D%220.7%22%20fill%3D%22%23fff%22%2F%3E%3C%2Fg%3E%3C%2Fsvg%3E"><rect%20width="64"%20height="64"%20rx="8"%20fill="#07070b"/><defs><filter%20id="g"%20x="-30%25"%20y="-30%25"%20width="160%25"%20height="160%25"><feGaussianBlur%20stdDeviation="1.5"%20result="b"/><feMerge><feMergeNode%20in="b"/><feMergeNode%20in="SourceGraphic"/></feMerge></filter></defs><g%20filter="url%28#g%29"%20fill="none"%20stroke-linejoin="round"%20stroke-linecap="round"%20stroke-width="3"><polygon%20points="32,11%2012,45%2052,45"%20stroke="#00ff88"/><polygon%20points="20,17%206,49%2042,42"%20stroke="#00f0ff"%20opacity="0.9"/><polygon%20points="44,17%2058,49%2022,42"%20stroke="#b347ff"%20opacity="0.9"/></g><g%20fill="#00ff88"><circle%20cx="32"%20cy="11"%20r="2"/><circle%20cx="12"%20cy="45"%20r="2"/><circle%20cx="52"%20cy="45"%20r="2"/></g></svg>">
+<link rel="apple-touch-icon" href="data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20viewBox%3D%220%200%2064%2064%22%3E%3Crect%20width%3D%2264%22%20height%3D%2264%22%20rx%3D%228%22%20fill%3D%22%2307070b%22%2F%3E%3Cdefs%3E%3Cfilter%20id%3D%22g%22%20x%3D%22-30%25%22%20y%3D%22-30%25%22%20width%3D%22160%25%22%20height%3D%22160%25%22%3E%3CfeGaussianBlur%20stdDeviation%3D%220.8%22%20result%3D%22b%22%2F%3E%3CfeMerge%3E%3CfeMergeNode%20in%3D%22b%22%2F%3E%3CfeMergeNode%20in%3D%22SourceGraphic%22%2F%3E%3C%2FfeMerge%3E%3C%2Ffilter%3E%3C%2Fdefs%3E%3Cg%20filter%3D%22url%28%23g%29%22%20fill%3D%22none%22%20stroke-linejoin%3D%22round%22%20stroke-linecap%3D%22round%22%20stroke-width%3D%221.6%22%3E%3Cpolygon%20points%3D%2232%2C8%208%2C46%2056%2C46%22%20stroke%3D%22%2300ff88%22%20opacity%3D%220.75%22%2F%3E%3Cpolygon%20points%3D%2218%2C14%204%2C52%2040%2C42%22%20stroke%3D%22%2300f0ff%22%20opacity%3D%220.65%22%2F%3E%3Cpolygon%20points%3D%2246%2C14%2060%2C52%2024%2C42%22%20stroke%3D%22%23b347ff%22%20opacity%3D%220.65%22%2F%3E%3C%2Fg%3E%3Cg%20filter%3D%22url%28%23g%29%22%3E%3Cellipse%20cx%3D%2232%22%20cy%3D%2233%22%20rx%3D%228%22%20ry%3D%225%22%20fill%3D%22%230a0a14%22%20stroke%3D%22%2300f0ff%22%20stroke-width%3D%221.4%22%2F%3E%3Ccircle%20cx%3D%2232%22%20cy%3D%2233%22%20r%3D%223.5%22%20fill%3D%22%2300f0ff%22%2F%3E%3Cellipse%20cx%3D%2232%22%20cy%3D%2233%22%20rx%3D%220.9%22%20ry%3D%223.5%22%20fill%3D%22%231a0033%22%2F%3E%3Ccircle%20cx%3D%2230.5%22%20cy%3D%2231.5%22%20r%3D%220.7%22%20fill%3D%22%23fff%22%2F%3E%3C%2Fg%3E%3C%2Fsvg%3E">
+<link rel="manifest" href="data:application/manifest+json;base64,eyJuYW1lIjoiTy5ELkkuTi4iLCJzaG9ydF9uYW1lIjoiT0RJTiIsImRlc2NyaXB0aW9uIjoiT3B0aW1pemVkIERhdGEgSW50ZWdyYXRpb24gTmV0d29yayIsInN0YXJ0X3VybCI6Ii4vIiwiZGlzcGxheSI6InN0YW5kYWxvbmUiLCJiYWNrZ3JvdW5kX2NvbG9yIjoiIzA3MDcwYiIsInRoZW1lX2NvbG9yIjoiIzBhMGEwZiIsImljb25zIjpbeyJzcmMiOiJkYXRhOmltYWdlL3N2Zyt4bWw7YmFzZTY0LFBITjJaeUI0Yld4dWN6MGlhSFIwY0RvdkwzZDNkeTUzTXk1dmNtY3ZNakF3TUM5emRtY2lJSFpwWlhkQ2IzZzlJakFnTUNBMk5DQTJOQ0krUEhKbFkzUWdkMmxrZEdnOUlqWTBJaUJvWldsbmFIUTlJalkwSWlCeWVEMGlPQ0lnWm1sc2JEMGlJekEzTURjd1lpSXZQanhrWldaelBqeG1hV3gwWlhJZ2FXUTlJbWNpSUhnOUlpMHpNQ1VpSUhrOUlpMHpNQ1VpSUhkcFpIUm9QU0l4TmpBbElpQm9aV2xuYUhROUlqRTJNQ1VpUGp4bVpVZGhkWE56YVdGdVFteDFjaUJ6ZEdSRVpYWnBZWFJwYjI0OUlqQXVPQ0lnY21WemRXeDBQU0ppSWk4K1BHWmxUV1Z5WjJVK1BHWmxUV1Z5WjJWT2IyUmxJR2x1UFNKaUlpOCtQR1psVFdWeVoyVk9iMlJsSUdsdVBTSlRiM1Z5WTJWSGNtRndhR2xqSWk4K1BDOW1aVTFsY21kbFBqd3ZabWxzZEdWeVBqd3ZaR1ZtY3o0OFp5Qm1hV3gwWlhJOUluVnliQ2dqWnlraUlHWnBiR3c5SW01dmJtVWlJSE4wY205clpTMXNhVzVsYW05cGJqMGljbTkxYm1RaUlITjBjbTlyWlMxc2FXNWxZMkZ3UFNKeWIzVnVaQ0lnYzNSeWIydGxMWGRwWkhSb1BTSXhMallpUGp4d2IyeDVaMjl1SUhCdmFXNTBjejBpTXpJc09DQTRMRFEySURVMkxEUTJJaUJ6ZEhKdmEyVTlJaU13TUdabU9EZ2lJRzl3WVdOcGRIazlJakF1TnpVaUx6NDhjRzlzZVdkdmJpQndiMmx1ZEhNOUlqRTRMREUwSURRc05USWdOREFzTkRJaUlITjBjbTlyWlQwaUl6QXdaakJtWmlJZ2IzQmhZMmwwZVQwaU1DNDJOU0l2UGp4d2IyeDVaMjl1SUhCdmFXNTBjejBpTkRZc01UUWdOakFzTlRJZ01qUXNORElpSUhOMGNtOXJaVDBpSTJJek5EZG1aaUlnYjNCaFkybDBlVDBpTUM0Mk5TSXZQand2Wno0OFp5Qm1hV3gwWlhJOUluVnliQ2dqWnlraVBqeGxiR3hwY0hObElHTjRQU0l6TWlJZ1kzazlJak16SWlCeWVEMGlPQ0lnY25rOUlqVWlJR1pwYkd3OUlpTXdZVEJoTVRRaUlITjBjbTlyWlQwaUl6QXdaakJtWmlJZ2MzUnliMnRsTFhkcFpIUm9QU0l4TGpRaUx6NDhZMmx5WTJ4bElHTjRQU0l6TWlJZ1kzazlJak16SWlCeVBTSXpMalVpSUdacGJHdzlJaU13TUdZd1ptWWlMejQ4Wld4c2FYQnpaU0JqZUQwaU16SWlJR041UFNJek15SWdjbmc5SWpBdU9TSWdjbms5SWpNdU5TSWdabWxzYkQwaUl6RmhNREF6TXlJdlBqeGphWEpqYkdVZ1kzZzlJak13TGpVaUlHTjVQU0l6TVM0MUlpQnlQU0l3TGpjaUlHWnBiR3c5SWlObVptWWlMejQ4TDJjK1BDOXpkbWMrIiwic2l6ZXMiOiJhbnkiLCJ0eXBlIjoiaW1hZ2Uvc3ZnK3htbCIsInB1cnBvc2UiOiJhbnkifV19">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;700;800&family=VT323&family=Orbitron:wght@600;800&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg-0: #07070b; --bg-1: #0e0e16; --bg-2: #15151f; --bg-3: #1c1c2a;
+  --line: #2a2a3e; --line-soft: #1f1f2e;
+  --txt: #d6d6e0; --txt-dim: #8888a0; --txt-faint: #555570;
+  --cyan: #00f0ff; --cyan-dim: #00a0b0;
+  --magenta: #ff2d92; --magenta-dim: #b01e64;
+  --green: #00ff88; --yellow: #ffe600; --orange: #ff9f1c; --red: #ff3860;
+  --purple: #b347ff;
+}
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+html,body{background:var(--bg-0);color:var(--txt);font-family:'JetBrains Mono',monospace;font-size:14px;line-height:1.5;min-height:100vh;overscroll-behavior:none}
+body::before{content:'';position:fixed;inset:0;pointer-events:none;background:repeating-linear-gradient(0deg,rgba(0,240,255,.015) 0,rgba(0,240,255,.015) 1px,transparent 1px,transparent 3px);z-index:1}
+body::after{content:'';position:fixed;inset:0;pointer-events:none;background:radial-gradient(ellipse at center,transparent 40%,rgba(0,0,0,.6) 100%);z-index:2}
+#app{position:relative;z-index:10;max-width:760px;margin:0 auto;padding:14px 12px 100px;min-height:100vh}
+
+/* HEADER */
+.hdr{border:1px solid var(--line);background:linear-gradient(180deg,var(--bg-1),var(--bg-2));padding:12px 14px 10px;margin-bottom:10px;position:relative;overflow:hidden}
+.hdr::before{content:'';position:absolute;top:0;left:0;right:0;height:2px;background:linear-gradient(90deg,transparent,var(--cyan),var(--magenta),transparent)}
+.hdr-top{display:flex;justify-content:space-between;align-items:flex-start;gap:10px}
+.hdr-title{font-family:'Orbitron',monospace;font-size:24px;letter-spacing:3px;color:var(--cyan);text-shadow:0 0 8px rgba(0,240,255,.5);line-height:1;font-weight:800}
+.hdr-icon{width:36px;height:36px;flex-shrink:0;filter:drop-shadow(0 0 4px rgba(0,240,255,.3));cursor:pointer;transition:transform .15s}
+.hdr-icon:hover{transform:scale(1.08)}
+.hdr-icon:active{transform:scale(.94)}
+.hdr-sub{font-size:10px;color:var(--txt-dim);letter-spacing:2px;margin-top:4px;text-transform:uppercase}
+.hdr-status{display:flex;gap:10px;margin-top:8px;font-size:10px;color:var(--txt-faint);flex-wrap:wrap}
+.hdr-status span{display:inline-flex;align-items:center;gap:4px}
+.dot{display:inline-block;width:6px;height:6px;border-radius:50%;background:var(--green);box-shadow:0 0 5px var(--green)}
+.dot.warn{background:var(--yellow);box-shadow:0 0 5px var(--yellow)}
+.dot.danger{background:var(--red);box-shadow:0 0 5px var(--red)}
+.dot.idle{background:var(--txt-faint);box-shadow:none}
+
+/* CHARACTER CARD */
+.char-card{display:flex;gap:12px;align-items:center;padding:10px;background:linear-gradient(135deg,rgba(179,71,255,.08),rgba(0,240,255,.08));border:1px solid var(--purple);margin-top:10px;position:relative;overflow:hidden}
+.char-card::after{content:'';position:absolute;top:0;right:0;width:60%;height:100%;background:radial-gradient(circle at top right,rgba(179,71,255,.15),transparent 70%);pointer-events:none}
+.char-avatar{font-size:36px;line-height:1;width:54px;height:54px;display:flex;align-items:center;justify-content:center;background:var(--bg-0);border:1px solid var(--purple);box-shadow:0 0 12px rgba(179,71,255,.3);flex-shrink:0}
+.char-info{flex:1;min-width:0}
+.char-name{font-family:'Orbitron',monospace;font-size:13px;letter-spacing:2px;color:var(--purple);font-weight:700}
+.char-class{font-size:10px;color:var(--cyan);letter-spacing:1px;text-transform:uppercase;margin-top:2px}
+.bar{height:6px;background:var(--bg-0);border:1px solid var(--line);margin-top:4px;position:relative;overflow:hidden}
+.bar-fill{height:100%;transition:width .4s;background:linear-gradient(90deg,var(--cyan),var(--purple))}
+.bar-fill.hp{background:linear-gradient(90deg,var(--red),var(--orange),var(--green))}
+.bar-fill.xp{background:linear-gradient(90deg,var(--cyan),var(--magenta))}
+.char-stats{display:grid;grid-template-columns:repeat(3,1fr);gap:6px;margin-top:8px;font-size:10px}
+.char-stat{background:var(--bg-0);border:1px solid var(--line);padding:5px 6px;text-align:center}
+.char-stat-l{color:var(--txt-faint);letter-spacing:1px;font-size:8px;text-transform:uppercase}
+.char-stat-v{font-family:'VT323',monospace;font-size:18px;color:var(--cyan);line-height:1}
+.char-stat-v.hp{color:var(--red)}
+.char-stat-v.gold{color:var(--yellow)}
+
+/* TABS */
+.tabs{display:grid;grid-template-columns:repeat(6,1fr);gap:3px;margin-bottom:12px;position:sticky;top:4px;z-index:50;background:var(--bg-0);padding:5px 0}
+.tab{background:var(--bg-1);border:1px solid var(--line);color:var(--txt-dim);padding:8px 2px;font-family:inherit;font-size:9px;font-weight:700;letter-spacing:1px;cursor:pointer;transition:all .15s;text-transform:uppercase}
+.tab:hover{color:var(--cyan);border-color:var(--cyan-dim)}
+.tab.active{background:var(--bg-2);color:var(--cyan);border-color:var(--cyan);box-shadow:inset 0 0 12px rgba(0,240,255,.1),0 0 8px rgba(0,240,255,.2)}
+
+.section{display:none;animation:fadeIn .2s ease}
+.section.active{display:block}
+@keyframes fadeIn{from{opacity:0;transform:translateY(4px)}to{opacity:1;transform:none}}
+
+/* CARDS */
+.card{background:var(--bg-1);border:1px solid var(--line);margin-bottom:10px;padding:12px;position:relative}
+.card-title{font-size:10px;letter-spacing:2px;color:var(--cyan-dim);text-transform:uppercase;margin-bottom:8px;display:flex;align-items:center;gap:6px;justify-content:space-between}
+.card-title::before{content:'▸';color:var(--cyan)}
+.card-title>.title-text{flex:1}
+.card-title>.title-actions{display:flex;gap:4px}
+.card.accent-magenta{border-left:2px solid var(--magenta)}
+.card.accent-cyan{border-left:2px solid var(--cyan)}
+.card.accent-green{border-left:2px solid var(--green)}
+.card.accent-yellow{border-left:2px solid var(--yellow)}
+.card.accent-red{border-left:2px solid var(--red)}
+.card.accent-purple{border-left:2px solid var(--purple)}
+.card.firewall{position:relative}
+.card.firewall::before{content:'NO-XP ZONE · FREE MODE';position:absolute;top:-1px;right:0;background:var(--bg-2);border:1px solid var(--line-soft);border-top:none;border-right:none;color:var(--green);font-size:8px;letter-spacing:1px;padding:2px 6px;font-family:'JetBrains Mono',monospace}
+
+.status-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.stat{background:var(--bg-2);border:1px solid var(--line-soft);padding:9px}
+.stat-label{font-size:9px;letter-spacing:1.5px;color:var(--txt-faint);text-transform:uppercase;margin-bottom:3px}
+.stat-value{font-family:'VT323',monospace;font-size:24px;color:var(--cyan);line-height:1}
+.stat-value.dim{color:var(--txt-faint)}
+.stat-value.magenta{color:var(--magenta)}
+.stat-value.green{color:var(--green)}
+.stat-value.yellow{color:var(--yellow)}
+.stat-sub{font-size:10px;color:var(--txt-dim);margin-top:3px}
+
+/* INPUTS */
+.input,.textarea,.select{width:100%;background:var(--bg-2);border:1px solid var(--line);color:var(--txt);padding:10px 12px;font-family:inherit;font-size:14px;outline:none;transition:border-color .15s}
+.input:focus,.textarea:focus,.select:focus{border-color:var(--cyan);box-shadow:0 0 0 1px var(--cyan-dim)}
+.textarea{resize:vertical;min-height:70px;line-height:1.5}
+.input::placeholder,.textarea::placeholder{color:var(--txt-faint)}
+label.lab{display:block;font-size:10px;letter-spacing:1.5px;color:var(--txt-dim);text-transform:uppercase;margin-bottom:5px}
+
+/* BUTTONS */
+.btn{background:transparent;border:1px solid var(--cyan);color:var(--cyan);padding:9px 13px;font-family:inherit;font-size:11px;font-weight:700;letter-spacing:1.2px;text-transform:uppercase;cursor:pointer;transition:all .15s;display:inline-flex;align-items:center;gap:5px;justify-content:center}
+.btn:hover{background:var(--cyan);color:var(--bg-0)}
+.btn:active{transform:scale(.98)}
+.btn.btn-magenta{border-color:var(--magenta);color:var(--magenta)}.btn.btn-magenta:hover{background:var(--magenta);color:var(--bg-0)}
+.btn.btn-green{border-color:var(--green);color:var(--green)}.btn.btn-green:hover{background:var(--green);color:var(--bg-0)}
+.btn.btn-yellow{border-color:var(--yellow);color:var(--yellow)}.btn.btn-yellow:hover{background:var(--yellow);color:var(--bg-0)}
+.btn.btn-red{border-color:var(--red);color:var(--red)}.btn.btn-red:hover{background:var(--red);color:var(--bg-0)}
+.btn.btn-purple{border-color:var(--purple);color:var(--purple)}.btn.btn-purple:hover{background:var(--purple);color:var(--bg-0)}
+.btn.btn-ghost{border-color:var(--line);color:var(--txt-dim)}.btn.btn-ghost:hover{border-color:var(--txt-dim);color:var(--txt);background:transparent}
+.btn.btn-block{width:100%}
+.btn.btn-sm{padding:5px 9px;font-size:9px}
+.btn-row{display:flex;gap:6px;flex-wrap:wrap}
+.btn-row.tight>*{flex:1;min-width:100px}
+
+/* SCALE */
+.scale{display:grid;grid-template-columns:repeat(10,1fr);gap:3px;margin:5px 0}
+.scale-btn{background:var(--bg-2);border:1px solid var(--line);color:var(--txt-dim);padding:9px 0;font-family:'VT323',monospace;font-size:17px;cursor:pointer;transition:all .12s}
+.scale-btn:hover{border-color:var(--cyan-dim);color:var(--cyan)}
+.scale-btn.selected{background:var(--cyan);color:var(--bg-0);border-color:var(--cyan)}
+.scale-labels{display:flex;justify-content:space-between;font-size:9px;color:var(--txt-faint);letter-spacing:1px;text-transform:uppercase;margin-top:2px}
+
+/* ENTRIES */
+.entry{background:var(--bg-2);border:1px solid var(--line-soft);border-left:2px solid var(--cyan-dim);padding:9px 11px;margin-bottom:6px;font-size:13px}
+.entry.tilt{border-left-color:var(--red)}
+.entry.hack{border-left-color:var(--yellow)}
+.entry.powerup{border-left-color:var(--green)}
+.entry.mood{border-left-color:var(--magenta)}
+.entry.sat{border-left-color:var(--orange)}
+.entry-meta{font-size:10px;color:var(--txt-faint);letter-spacing:1px;margin-bottom:3px;display:flex;justify-content:space-between;align-items:center}
+.entry-text{color:var(--txt);white-space:pre-wrap;word-break:break-word}
+.entry-del{background:none;border:none;color:var(--txt-faint);font-size:11px;cursor:pointer;padding:2px 6px;font-family:inherit}
+.entry-del:hover{color:var(--red)}
+
+.empty{color:var(--txt-faint);font-style:italic;font-size:12px;padding:12px;text-align:center;border:1px dashed var(--line);background:var(--bg-1)}
+
+/* CHIPS */
+.chips{display:flex;flex-wrap:wrap;gap:5px}
+.chip{background:var(--bg-2);border:1px solid var(--line);color:var(--txt);padding:7px 11px;font-family:inherit;font-size:11px;cursor:pointer;transition:all .12s;display:inline-flex;align-items:center;gap:4px}
+.chip:hover{border-color:var(--green);color:var(--green)}
+.chip.active{background:var(--green);color:var(--bg-0);border-color:var(--green)}
+
+/* SUB-NAV */
+.subnav{display:flex;gap:3px;margin-bottom:10px;background:var(--bg-1);padding:3px;border:1px solid var(--line)}
+.subnav button{flex:1;background:transparent;border:none;color:var(--txt-dim);padding:7px;font-family:inherit;font-size:10px;font-weight:700;letter-spacing:1px;cursor:pointer;text-transform:uppercase}
+.subnav button.active{background:var(--bg-3);color:var(--cyan)}
+.subnav button .badge{display:inline-block;background:var(--magenta);color:var(--bg-0);font-size:8px;padding:1px 5px;margin-left:4px;border-radius:8px;font-weight:800}
+
+/* HABIT/DAILY/TASK */
+.todo{background:var(--bg-2);border:1px solid var(--line-soft);padding:10px;margin-bottom:6px;display:flex;align-items:flex-start;gap:8px;transition:all .12s;border-left:2px solid var(--line)}
+.todo.priority-1{border-left-color:var(--green)}
+.todo.priority-2{border-left-color:var(--yellow)}
+.todo.priority-3{border-left-color:var(--red)}
+.todo.done{opacity:.5}
+.todo.done .todo-name{text-decoration:line-through}
+.todo-check{width:24px;height:24px;border:1px solid var(--cyan);background:transparent;color:var(--cyan);font-size:14px;cursor:pointer;flex-shrink:0;display:inline-flex;align-items:center;justify-content:center;font-family:inherit}
+.todo-check.done{background:var(--cyan);color:var(--bg-0)}
+.todo-content{flex:1;min-width:0}
+.todo-name{font-size:13px;word-break:break-word}
+.todo-meta{font-size:10px;color:var(--txt-faint);margin-top:3px;display:flex;gap:8px;flex-wrap:wrap}
+.todo-tag{background:var(--bg-3);padding:1px 5px;color:var(--cyan-dim);font-size:9px;letter-spacing:1px}
+.todo-actions{display:flex;gap:3px;flex-direction:column}
+.todo-actions button{background:transparent;border:1px solid var(--line);color:var(--txt-dim);font-size:11px;cursor:pointer;padding:2px 7px;font-family:inherit}
+.todo-actions button:hover{border-color:var(--red);color:var(--red)}
+
+/* HABIT special */
+.habit{background:var(--bg-2);border:1px solid var(--line-soft);padding:10px;margin-bottom:6px;display:flex;align-items:center;gap:8px;border-left:2px solid var(--cyan-dim)}
+.habit.diff-1{border-left-color:var(--green)}
+.habit.diff-2{border-left-color:var(--yellow)}
+.habit.diff-3{border-left-color:var(--red)}
+.habit-name{flex:1;font-size:13px;word-break:break-word}
+.habit-streak{font-size:10px;color:var(--orange);letter-spacing:1px}
+.habit-btn{width:36px;height:36px;border:1px solid;background:transparent;font-size:18px;cursor:pointer;font-family:inherit;font-weight:700;display:inline-flex;align-items:center;justify-content:center;flex-shrink:0}
+.habit-btn.plus{border-color:var(--green);color:var(--green)}
+.habit-btn.plus:hover{background:var(--green);color:var(--bg-0)}
+.habit-btn.minus{border-color:var(--red);color:var(--red)}
+.habit-btn.minus:hover{background:var(--red);color:var(--bg-0)}
+.habit-btn:active{transform:scale(.9)}
+.habit-actions{margin-left:auto;display:flex;gap:3px;flex-direction:column}
+.habit-actions button{background:transparent;border:1px solid var(--line);color:var(--txt-dim);font-size:10px;cursor:pointer;padding:2px 6px;font-family:inherit}
+
+/* REWARDS */
+.reward{background:linear-gradient(135deg,var(--bg-2),var(--bg-3));border:1px solid var(--yellow);padding:10px;margin-bottom:6px;display:flex;align-items:center;gap:10px}
+.reward-name{flex:1;font-size:13px}
+.reward-cost{color:var(--yellow);font-family:'VT323',monospace;font-size:18px}
+
+/* LISTS */
+.lists-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(120px,1fr));gap:6px;margin-bottom:10px}
+.list-pill{background:var(--bg-2);border:1px solid var(--line);padding:6px 10px;font-size:11px;cursor:pointer;text-align:center;letter-spacing:1px;text-transform:uppercase;display:flex;align-items:center;gap:5px;justify-content:center}
+.list-pill:hover{border-color:var(--cyan-dim)}
+.list-pill.active{background:var(--bg-3);border-color:var(--cyan);color:var(--cyan)}
+
+/* GOAL/TASK editor inline */
+.task-form{background:var(--bg-2);border:1px dashed var(--line);padding:10px;margin-bottom:10px}
+.task-form .row{display:grid;grid-template-columns:1fr 1fr;gap:6px;margin-top:6px}
+.task-form .row.full{grid-template-columns:1fr}
+
+/* BACKUP BANNER */
+.backup-banner{background:linear-gradient(180deg,var(--bg-1),var(--bg-2));border:1px solid var(--line);padding:9px 11px;margin-bottom:10px;display:flex;align-items:center;justify-content:space-between;gap:10px;font-size:11px;color:var(--txt-dim)}
+.backup-banner.warn{border-color:var(--yellow);color:var(--yellow);background:linear-gradient(180deg,rgba(255,230,0,.05),rgba(255,230,0,.02))}
+.backup-banner.danger{border-color:var(--red);color:var(--red);background:linear-gradient(180deg,rgba(255,56,96,.05),rgba(255,56,96,.02))}
+.backup-banner button{background:transparent;border:1px solid currentColor;color:inherit;padding:4px 9px;font-family:inherit;font-size:10px;cursor:pointer;letter-spacing:1px;text-transform:uppercase;white-space:nowrap}
+.backup-banner button:hover{background:currentColor;color:var(--bg-0)}
+
+/* OUTPUT TEXT */
+.output{background:var(--bg-0);border:1px solid var(--line);padding:11px;font-size:11px;line-height:1.6;white-space:pre-wrap;color:var(--green);max-height:380px;overflow-y:auto;word-break:break-word}
+
+/* SEARCH/FILTER */
+.history-counts{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:10px}
+.count-pill{background:var(--bg-2);border:1px solid var(--line);padding:5px 9px;font-size:10px;letter-spacing:1px;text-transform:uppercase;color:var(--txt-dim);cursor:pointer}
+.count-pill:hover{border-color:var(--cyan-dim)}
+.count-pill.active{border-color:var(--cyan);color:var(--cyan);background:var(--bg-3)}
+
+/* POMODORO */
+.pomodoro{text-align:center;padding:14px;background:linear-gradient(135deg,rgba(0,240,255,.05),rgba(255,45,146,.05));border:1px solid var(--cyan)}
+.pomo-time{font-family:'Orbitron',monospace;font-size:46px;color:var(--cyan);text-shadow:0 0 14px rgba(0,240,255,.5);font-weight:800;letter-spacing:3px}
+.pomo-state{font-size:10px;letter-spacing:2px;color:var(--txt-dim);text-transform:uppercase;margin-top:4px}
+.pomo-controls{display:flex;gap:6px;margin-top:10px;justify-content:center}
+
+/* FOOTER */
+.footer{text-align:center;font-size:10px;color:var(--txt-faint);margin-top:18px;padding:10px 0;letter-spacing:1px;border-top:1px solid var(--line-soft)}
+
+/* TOAST */
+.toast{position:fixed;bottom:20px;left:50%;transform:translateX(-50%);background:var(--bg-2);border:1px solid var(--cyan);color:var(--cyan);padding:9px 14px;font-size:12px;letter-spacing:1px;z-index:200;animation:toastIn .2s ease;box-shadow:0 0 18px rgba(0,240,255,.3)}
+.toast.success{border-color:var(--green);color:var(--green);box-shadow:0 0 18px rgba(0,255,136,.3)}
+.toast.error{border-color:var(--red);color:var(--red);box-shadow:0 0 18px rgba(255,56,96,.3)}
+.toast.xp{border-color:var(--purple);color:var(--purple);box-shadow:0 0 18px rgba(179,71,255,.3)}
+@keyframes toastIn{from{opacity:0;transform:translate(-50%,10px)}to{opacity:1;transform:translate(-50%,0)}}
+
+.help{font-size:11px;color:var(--txt-dim);margin-top:5px;line-height:1.5}
+.help.warn{color:var(--yellow)}.help.danger{color:var(--red)}.help.good{color:var(--green)}
+
+/* LEVEL UP overlay */
+.levelup{position:fixed;inset:0;display:flex;align-items:center;justify-content:center;z-index:300;background:rgba(0,0,0,.85);animation:fadeIn .3s ease;cursor:pointer}
+.levelup-content{font-family:'Orbitron',monospace;text-align:center;color:var(--purple);text-shadow:0 0 30px var(--purple);font-size:42px;letter-spacing:6px;font-weight:800;animation:lvlPulse 1s ease infinite alternate}
+@keyframes lvlPulse{from{transform:scale(1)}to{transform:scale(1.08)}}
+.levelup-sub{font-family:'JetBrains Mono',monospace;font-size:12px;letter-spacing:3px;color:var(--cyan);margin-top:14px;text-transform:uppercase}
+
+@media (max-width:480px){
+  .tabs{grid-template-columns:repeat(3,1fr)}
+  .tab{font-size:10px;padding:8px 4px}
+  .status-grid{grid-template-columns:1fr}
+  .hdr-title{font-size:20px}
+  .scale{grid-template-columns:repeat(5,1fr)}
+  .scale-btn{padding:11px 0}
+  #app{padding:8px 8px 100px}
+  .pomo-time{font-size:36px}
+}
+
+/* v1.6: Quiet Mode + Mode Toggle */
+.quiet-badge{background:linear-gradient(90deg,rgba(0,255,136,.08),rgba(0,240,255,.08));border:1px solid var(--green);padding:6px 12px;margin-bottom:10px;font-size:10px;letter-spacing:1.5px;color:var(--green);text-align:center;text-transform:uppercase}
+.quiet-badge.full{background:linear-gradient(90deg,rgba(179,71,255,.1),rgba(255,45,146,.08));border-color:var(--purple);color:var(--purple)}
+.mode-toggle{background:linear-gradient(135deg,var(--bg-1),var(--bg-2));border:2px solid var(--green);padding:14px;margin-bottom:14px;cursor:pointer;transition:all .2s}
+.mode-toggle.full{border-color:var(--purple)}
+.mode-toggle:hover{box-shadow:0 0 16px rgba(0,255,136,.2)}
+.mode-toggle.full:hover{box-shadow:0 0 16px rgba(179,71,255,.2)}
+.mode-toggle-row{display:flex;align-items:center;gap:12px}
+.mode-icon{font-size:32px;line-height:1}
+.mode-info{flex:1}
+.mode-label{font-family:'Orbitron',monospace;font-size:13px;letter-spacing:2px;color:var(--green);font-weight:700}
+.mode-toggle.full .mode-label{color:var(--purple)}
+.mode-desc{font-size:11px;color:var(--txt-dim);margin-top:3px}
+.mode-switch{width:50px;height:26px;background:var(--bg-3);border:1px solid var(--line);position:relative;flex-shrink:0}
+.mode-switch::after{content:'';position:absolute;left:2px;top:2px;width:20px;height:20px;background:var(--green);transition:transform .2s}
+.mode-toggle.full .mode-switch::after{transform:translateX(24px);background:var(--purple)}
+
+/* v1.6: Welcome modal */
+.welcome-bg{position:fixed;inset:0;background:rgba(0,0,0,.92);display:flex;align-items:center;justify-content:center;z-index:500;padding:20px}
+.welcome-box{background:var(--bg-1);border:1px solid var(--cyan);max-width:480px;padding:24px;box-shadow:0 0 30px rgba(0,240,255,.3)}
+.welcome-title{font-family:'Orbitron',monospace;font-size:22px;color:var(--cyan);letter-spacing:3px;margin-bottom:14px;font-weight:800}
+.welcome-text{font-size:13px;color:var(--txt);line-height:1.6;margin-bottom:14px}
+.welcome-text strong{color:var(--cyan)}
+.welcome-choices{display:grid;gap:10px;margin-top:14px}
+.welcome-btn{background:var(--bg-2);border:1px solid var(--line);color:var(--txt);padding:14px;cursor:pointer;text-align:left;font-family:inherit;transition:all .15s}
+.welcome-btn:hover{border-color:var(--cyan)}
+.welcome-btn.recommended{border-color:var(--green)}
+.welcome-btn.recommended:hover{box-shadow:0 0 14px rgba(0,255,136,.2)}
+.welcome-btn-title{font-family:'Orbitron',monospace;font-size:13px;letter-spacing:2px;font-weight:700;color:var(--cyan)}
+.welcome-btn.recommended .welcome-btn-title{color:var(--green)}
+.welcome-btn-desc{font-size:11px;color:var(--txt-dim);margin-top:5px;line-height:1.5}
+::-webkit-scrollbar{width:7px;height:7px}
+::-webkit-scrollbar-track{background:var(--bg-0)}
+::-webkit-scrollbar-thumb{background:var(--line)}
+::-webkit-scrollbar-thumb:hover{background:var(--cyan-dim)}
+
+/* v1.6.1: FX layer - tap pulse + animations (respects data-anim mode) */
+@keyframes fxPulse{
+  0%{transform:scale(1);box-shadow:0 0 0 0 rgba(0,255,136,.4)}
+  50%{transform:scale(1.08);box-shadow:0 0 0 6px rgba(0,255,136,0)}
+  100%{transform:scale(1);box-shadow:0 0 0 0 rgba(0,255,136,0)}
+}
+@keyframes fxCheckPop{
+  0%{transform:scale(1)}
+  50%{transform:scale(1.25)}
+  100%{transform:scale(1)}
+}
+.fx-pulse{animation:fxPulse .35s ease-out}
+.todo-check.done{animation:fxCheckPop .3s ease-out}
+
+/* Reduced motion: cut decorative animations, keep functional ones */
+body[data-anim="reduced"] .fx-pulse,
+body[data-anim="reduced"] .todo-check.done{animation:none}
+body[data-anim="reduced"] .levelup-content{animation:none}
+
+/* Off: nothing animates at all (except modal transitions for usability) */
+body[data-anim="off"] *,
+body[data-anim="off"] *::before,
+body[data-anim="off"] *::after{animation:none !important;transition:none !important}
+
+/* FX settings panel */
+.fx-row{display:flex;align-items:center;justify-content:space-between;padding:8px 4px;border-bottom:1px solid var(--line-soft)}
+.fx-row:last-of-type{border-bottom:none}
+.fx-row > span{font-size:13px;color:var(--txt)}
+.fx-row > input[type="checkbox"]{width:44px;height:24px;-webkit-appearance:none;appearance:none;background:var(--bg-3);border:1px solid var(--line);position:relative;cursor:pointer;flex-shrink:0;transition:background .15s}
+.fx-row > input[type="checkbox"]::after{content:'';position:absolute;left:2px;top:1px;width:18px;height:18px;background:var(--txt-faint);transition:transform .2s,background .2s}
+.fx-row > input[type="checkbox"]:checked{background:rgba(0,240,255,.15);border-color:var(--cyan)}
+.fx-row > input[type="checkbox"]:checked::after{transform:translateX(20px);background:var(--cyan);box-shadow:0 0 8px var(--cyan)}
+.fx-row > select{background:var(--bg-3);border:1px solid var(--line);color:var(--txt);padding:5px 8px;font-family:inherit;font-size:12px;min-width:110px}
+
+/* v1.7: PHASE BANNER */
+.phase-banner{display:flex;align-items:center;gap:8px;padding:6px 12px;font-size:10px;letter-spacing:2px;text-transform:uppercase;font-family:'Orbitron',monospace;margin-bottom:8px;border:1px solid var(--line);background:var(--bg-1)}
+.phase-banner.pre-exam{color:var(--orange);border-color:var(--orange)}
+.phase-banner.transition{color:var(--cyan);border-color:var(--cyan);background:linear-gradient(90deg,rgba(0,240,255,.05),transparent)}
+.phase-banner.normal{color:var(--green);border-color:var(--green)}
+.phase-banner .ph-dot{display:inline-block;width:8px;height:8px;border-radius:50%;animation:phPulse 2s ease infinite}
+.phase-banner.pre-exam .ph-dot{background:var(--orange);box-shadow:0 0 6px var(--orange)}
+.phase-banner.transition .ph-dot{background:var(--cyan);box-shadow:0 0 6px var(--cyan)}
+.phase-banner.normal .ph-dot{background:var(--green);box-shadow:0 0 6px var(--green)}
+@keyframes phPulse{0%,100%{opacity:1}50%{opacity:.4}}
+
+/* v1.7: STATO GIORNATA widget */
+.day-board{background:linear-gradient(135deg,var(--bg-1),var(--bg-2));border:1px solid var(--cyan);padding:14px;margin-bottom:10px;position:relative;overflow:hidden}
+.day-board::before{content:'';position:absolute;top:0;left:0;right:0;height:2px;background:linear-gradient(90deg,transparent,var(--cyan),transparent);animation:slideX 4s linear infinite}
+@keyframes slideX{0%{transform:translateX(-100%)}100%{transform:translateX(100%)}}
+.day-board-title{font-family:'Orbitron',monospace;font-size:11px;letter-spacing:3px;color:var(--cyan);margin-bottom:10px;text-transform:uppercase}
+.day-board-row{display:grid;grid-template-columns:80px 1fr 50px;gap:10px;align-items:center;margin-bottom:6px;font-size:11px}
+.day-board-label{color:var(--txt-dim);letter-spacing:1px;font-size:10px;text-transform:uppercase}
+.day-board-bar{height:8px;background:var(--bg-0);border:1px solid var(--line);position:relative;overflow:hidden}
+.day-board-bar-fill{height:100%;transition:width .5s ease}
+.day-board-bar-fill.routine{background:linear-gradient(90deg,var(--cyan),var(--purple))}
+.day-board-bar-fill.daily{background:linear-gradient(90deg,var(--green),var(--cyan))}
+.day-board-bar-fill.task{background:linear-gradient(90deg,var(--magenta),var(--purple))}
+.day-board-bar-fill.pomo{background:linear-gradient(90deg,var(--orange),var(--red))}
+.day-board-val{text-align:right;color:var(--cyan);font-weight:700;font-size:11px;font-family:'JetBrains Mono',monospace}
+.day-board-pending{margin-top:10px;padding-top:8px;border-top:1px dashed var(--line-soft);font-size:11px;color:var(--txt-dim)}
+.day-board-pending b{color:var(--yellow)}
+
+/* v1.7: STIMULI dice button */
+.stim-button{position:fixed;bottom:20px;right:14px;width:56px;height:56px;border-radius:50%;background:linear-gradient(135deg,var(--magenta),var(--purple));color:white;border:none;font-size:24px;cursor:pointer;box-shadow:0 4px 14px rgba(179,71,255,.4);z-index:50;transition:transform .15s}
+.stim-button:active{transform:scale(.92)}
+.stim-button:hover{box-shadow:0 4px 20px rgba(179,71,255,.6)}
+.stim-modal{position:fixed;inset:0;background:rgba(0,0,0,.85);z-index:600;display:flex;align-items:center;justify-content:center;padding:20px}
+.stim-modal-box{background:var(--bg-1);border:1px solid var(--magenta);max-width:420px;width:100%;padding:24px;box-shadow:0 0 30px rgba(179,71,255,.3);text-align:center}
+.stim-cat{font-family:'Orbitron',monospace;font-size:10px;letter-spacing:3px;color:var(--magenta);text-transform:uppercase;margin-bottom:12px}
+.stim-emoji{font-size:48px;margin-bottom:10px;line-height:1}
+.stim-text{font-size:16px;color:var(--txt);line-height:1.5;margin-bottom:18px;font-weight:500}
+.stim-actions{display:flex;gap:8px;justify-content:center}
+
+/* v1.7: PLAN tab */
+.routine-block{background:var(--bg-1);border:1px solid var(--line);padding:12px;margin-bottom:10px;position:relative}
+.routine-block.active{border-color:var(--cyan);box-shadow:0 0 12px rgba(0,240,255,.15)}
+.routine-block-head{display:flex;justify-content:space-between;align-items:center;margin-bottom:8px}
+.routine-block-title{font-family:'Orbitron',monospace;font-size:12px;letter-spacing:2px;color:var(--cyan);font-weight:700}
+.routine-block-time{font-size:10px;color:var(--txt-faint);letter-spacing:1px}
+.routine-item{display:flex;align-items:center;gap:8px;padding:6px 4px;border-bottom:1px solid var(--line-soft);cursor:pointer;transition:background .1s}
+.routine-item:last-child{border-bottom:none}
+.routine-item:hover{background:rgba(0,240,255,.05)}
+.routine-check{width:18px;height:18px;border:1px solid var(--line);background:var(--bg-0);display:inline-flex;align-items:center;justify-content:center;flex-shrink:0;font-size:11px;color:var(--green)}
+.routine-check.done{background:rgba(0,255,136,.15);border-color:var(--green)}
+.routine-text{flex:1;font-size:13px;color:var(--txt)}
+.routine-item.done .routine-text{color:var(--txt-faint);text-decoration:line-through}
+.routine-item.skipped .routine-text{color:var(--txt-faint);font-style:italic}
+.routine-skip-btn{background:transparent;border:1px solid var(--line);color:var(--txt-faint);padding:2px 6px;font-size:10px;cursor:pointer;font-family:inherit}
+.routine-skip-btn:hover{color:var(--orange);border-color:var(--orange)}
+
+/* v1.7: WORLD tab (Secondo Mondo) */
+.world-header{text-align:center;padding:14px;background:linear-gradient(180deg,var(--bg-1),var(--bg-2));border:1px solid var(--purple);margin-bottom:14px;position:relative;overflow:hidden}
+.world-header::before{content:'';position:absolute;top:0;left:0;right:0;height:3px;background:linear-gradient(90deg,transparent,var(--purple),var(--cyan),var(--magenta),transparent);animation:slideX 6s linear infinite}
+.world-title{font-family:'Orbitron',monospace;font-size:22px;color:var(--purple);letter-spacing:5px;font-weight:800;text-shadow:0 0 12px rgba(179,71,255,.5)}
+.world-sub{font-size:11px;color:var(--txt-dim);letter-spacing:2px;margin-top:4px;text-transform:uppercase}
+.world-map{background:var(--bg-0);border:1px solid var(--line);padding:12px;margin-bottom:12px;text-align:center;position:relative}
+.world-map svg{max-width:100%;height:auto}
+.world-rooms{display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:10px;margin-bottom:14px}
+.world-room{background:var(--bg-1);border:1px solid var(--line);padding:12px;text-align:center;transition:all .2s;cursor:pointer}
+.world-room.locked{opacity:.5;border-style:dashed}
+.world-room.unlocked{border-color:var(--purple);box-shadow:0 0 12px rgba(179,71,255,.2)}
+.world-room-emoji{font-size:32px;line-height:1;margin-bottom:6px;filter:grayscale(100%) opacity(0.4)}
+.world-room.unlocked .world-room-emoji{filter:none}
+.world-room-name{font-family:'Orbitron',monospace;font-size:11px;letter-spacing:2px;color:var(--cyan);font-weight:700;text-transform:uppercase}
+.world-room-area{font-size:10px;color:var(--txt-faint);margin-top:2px}
+.world-room-prog{font-size:10px;color:var(--txt-dim);margin-top:4px;font-family:'JetBrains Mono',monospace}
+.world-room.unlocked .world-room-prog{color:var(--green)}
+
+/* v1.7: COMPANION bubble */
+.companion-bubble{background:linear-gradient(135deg,rgba(0,240,255,.05),rgba(179,71,255,.05));border:1px solid var(--cyan);padding:10px 14px;margin-bottom:10px;display:flex;gap:10px;align-items:center;position:relative;animation:fadeIn .4s ease}
+.companion-avatar{font-size:24px;line-height:1;width:36px;height:36px;display:flex;align-items:center;justify-content:center;background:var(--bg-0);border:1px solid var(--cyan);box-shadow:0 0 8px rgba(0,240,255,.3);flex-shrink:0;border-radius:50%}
+.companion-body{flex:1;min-width:0}
+.companion-name{font-family:'Orbitron',monospace;font-size:9px;letter-spacing:2px;color:var(--cyan);text-transform:uppercase;font-weight:700}
+.companion-msg{font-size:13px;color:var(--txt);margin-top:2px;line-height:1.4}
+.companion-close{background:transparent;border:none;color:var(--txt-faint);font-size:18px;cursor:pointer;padding:0;align-self:flex-start;line-height:1}
+
+/* v1.7: ACHIEVEMENTS */
+.achievement-card{background:linear-gradient(135deg,rgba(255,230,0,.05),rgba(179,71,255,.05));border:1px solid var(--line);padding:10px;margin-bottom:8px;display:grid;grid-template-columns:42px 1fr auto;gap:10px;align-items:center;transition:all .25s}
+.achievement-card.locked{opacity:.55}
+.achievement-card.unlocked{border-color:var(--yellow);box-shadow:0 0 12px rgba(255,230,0,.15)}
+.achievement-emoji{font-size:28px;line-height:1;text-align:center;filter:grayscale(100%) opacity(0.4)}
+.achievement-card.unlocked .achievement-emoji{filter:none}
+.achievement-name{font-family:'Orbitron',monospace;font-size:11px;letter-spacing:1.5px;color:var(--yellow);font-weight:700;text-transform:uppercase}
+.achievement-card.locked .achievement-name{color:var(--txt-dim)}
+.achievement-desc{font-size:10px;color:var(--txt-dim);margin-top:2px}
+.achievement-prog{font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--cyan);font-weight:700;text-align:right}
+.achievement-card.unlocked .achievement-prog{color:var(--green)}
+
+/* v1.7: idea log */
+.idea-card{background:var(--bg-1);border:1px solid var(--line);border-left:3px solid var(--magenta);padding:10px;margin-bottom:8px;font-size:13px;color:var(--txt);line-height:1.5}
+.idea-card-meta{font-size:10px;color:var(--txt-faint);margin-top:6px;font-family:'JetBrains Mono',monospace}
+.idea-tag{display:inline-block;font-size:9px;background:rgba(179,71,255,.15);color:var(--magenta);padding:1px 6px;letter-spacing:1px;text-transform:uppercase;margin-right:4px}
+
+/* v1.7: v1.7 release banner */
+.v17-banner{background:linear-gradient(135deg,rgba(0,240,255,.1),rgba(179,71,255,.15));border:2px solid var(--purple);padding:18px;margin-bottom:14px;position:relative;overflow:hidden;animation:fadeIn .5s ease}
+.v17-banner::after{content:'';position:absolute;top:-50%;right:-50%;width:100%;height:200%;background:radial-gradient(circle,rgba(179,71,255,.15),transparent 70%);pointer-events:none}
+.v17-banner-title{font-family:'Orbitron',monospace;font-size:18px;letter-spacing:4px;color:var(--purple);font-weight:800;margin-bottom:8px;text-shadow:0 0 8px rgba(179,71,255,.4)}
+.v17-banner-text{font-size:12px;color:var(--txt);line-height:1.5;position:relative;z-index:2}
+.v17-banner-close{position:absolute;top:8px;right:10px;background:transparent;border:none;color:var(--txt-dim);font-size:20px;cursor:pointer;line-height:1}
+
+/* Tabs: support for 7 tabs (responsive) */
+.tabs{display:grid;grid-template-columns:repeat(8,1fr);gap:2px;margin-bottom:10px}
+@media (max-width:480px){
+  .tabs{grid-template-columns:repeat(4,1fr);gap:2px}
+  .tab{font-size:9px;padding:7px 2px;letter-spacing:1px}
+}
+
+/* v1.8.0: CONTINUITY MAP (Francesco's request — visual proof of work, NOT a streak system) */
+.continuity{margin-bottom:14px;animation:fadeIn .25s ease}
+.continuity-title{display:flex;align-items:center;gap:8px;font-size:11px;letter-spacing:2px;color:var(--cyan);text-transform:uppercase;margin-bottom:10px}
+.continuity-grid{display:grid;grid-template-columns:28px repeat(7,1fr);gap:3px;margin-bottom:10px;align-items:center}
+.continuity-head{font-size:9px;color:var(--txt-dim);text-align:center;letter-spacing:1px;font-weight:700}
+.continuity-row-label{font-size:8px;color:var(--txt-dim);letter-spacing:1px;text-align:right;padding-right:4px;font-family:'VT323',monospace}
+.continuity-cell{aspect-ratio:1;background:var(--bg-2);border:1px solid var(--line);border-radius:2px;transition:transform .15s, box-shadow .15s;cursor:pointer;position:relative}
+.continuity-cell[data-lv="1"]{background:rgba(0,240,255,.14);border-color:rgba(0,240,255,.3)}
+.continuity-cell[data-lv="2"]{background:rgba(0,240,255,.38);border-color:rgba(0,240,255,.55)}
+.continuity-cell[data-lv="3"]{background:rgba(0,240,255,.7);border-color:var(--cyan);box-shadow:0 0 5px rgba(0,240,255,.35)}
+.continuity-cell.today{outline:2px solid var(--magenta);outline-offset:1px;animation:contTodayPulse 2.2s ease-in-out infinite alternate}
+.continuity-cell.future{opacity:.18;cursor:default;pointer-events:none}
+.continuity-cell:not(.future):hover,.continuity-cell:not(.future):active{transform:scale(1.22);z-index:2;box-shadow:0 0 10px rgba(0,240,255,.5)}
+@keyframes contTodayPulse{from{box-shadow:0 0 4px var(--magenta)}to{box-shadow:0 0 14px var(--magenta),0 0 24px rgba(255,0,170,.35)}}
+/* v1.8.3: flash XP per note */
+.xp-flash{position:absolute;top:-10px;right:6px;background:rgba(0,240,255,.12);color:var(--cyan);border:1px solid var(--cyan);padding:3px 10px;font-family:'Orbitron',monospace;font-size:11px;font-weight:800;letter-spacing:1.5px;pointer-events:none;z-index:50;border-radius:2px;text-shadow:0 0 6px rgba(0,240,255,.6);box-shadow:0 0 8px rgba(0,240,255,.25);animation:xpFlashAnim 1.6s ease-out forwards}
+@keyframes xpFlashAnim{0%{opacity:0;transform:translateY(8px) scale(.85)}18%{opacity:1;transform:translateY(0) scale(1)}82%{opacity:1;transform:translateY(-6px) scale(1)}100%{opacity:0;transform:translateY(-16px) scale(.95)}}
+[data-anim="reduced"] .xp-flash{animation-duration:.8s}
+[data-anim="off"] .xp-flash{display:none}
+.continuity-stats{display:grid;grid-template-columns:repeat(3,1fr);gap:5px;margin-top:6px}
+.continuity-stat{background:var(--bg-2);border:1px solid var(--line);padding:7px 4px;text-align:center}
+.continuity-stat-label{font-size:8px;color:var(--txt-dim);letter-spacing:1.5px;text-transform:uppercase}
+.continuity-stat-value{font-family:'VT323',monospace;font-size:18px;color:var(--cyan);margin-top:2px;line-height:1}
+.continuity-record{font-size:10px;color:var(--green);margin-top:8px;letter-spacing:1px;text-align:center;font-style:italic;opacity:.85}
+.continuity-record.empty{color:var(--txt-dim);font-style:normal}
+.continuity-help{font-size:10px;color:var(--txt-dim);margin-top:8px;line-height:1.5;letter-spacing:.5px}
+body[data-anim="reduced"] .continuity-cell.today{animation:none;box-shadow:0 0 6px var(--magenta)}
+body[data-anim="reduced"] .continuity{animation:none}
+
+
+/* v1.8.4 · pannello stato sistema */
+.sys-status{background:linear-gradient(180deg,#0a0a14,#08080f);border:1px solid var(--cyan);padding:14px;margin-bottom:14px;position:relative}
+.sys-status::before{content:'';position:absolute;top:0;left:0;right:0;height:1px;background:linear-gradient(90deg,transparent,var(--cyan),transparent)}
+.sys-status-title{font-family:'Orbitron',monospace;font-size:12px;letter-spacing:3px;color:var(--cyan);font-weight:800;margin-bottom:12px;text-transform:uppercase;text-shadow:0 0 8px rgba(0,240,255,.4)}
+.sys-row{display:flex;justify-content:space-between;align-items:center;padding:5px 0;border-bottom:1px dashed rgba(0,240,255,.15);font-size:12px}
+.sys-row:last-of-type{border-bottom:none}
+.sys-label{color:#9090b0;letter-spacing:1px;text-transform:uppercase;font-size:10px}
+.sys-val{color:var(--cyan);font-family:'Orbitron',monospace;font-weight:600;text-align:right;font-size:12px}
+.sys-val.warn{color:#ffaa00}
+.sys-val.error{color:var(--magenta)}
+.sys-val.ok{color:var(--green)}
+.sys-send-btn{display:block;width:100%;margin-top:14px;padding:11px;background:linear-gradient(180deg,var(--magenta),#cc0088);border:1px solid var(--magenta);color:#fff;font-family:'Orbitron',monospace;font-size:12px;letter-spacing:2px;font-weight:800;cursor:pointer;text-transform:uppercase;border-radius:0;box-shadow:0 0 14px rgba(255,0,170,.3)}
+.sys-send-btn:hover{background:linear-gradient(180deg,#ff33bb,var(--magenta))}
+.sys-send-btn:active{transform:scale(.97)}
+.sys-help{font-size:10px;color:#7a7a9a;text-align:center;margin-top:6px;letter-spacing:.5px}
+.sys-err-log{margin-top:10px;padding:8px;background:rgba(255,0,170,.08);border-left:2px solid var(--magenta);font-size:10px;color:#ffaaaa;font-family:'Courier New',monospace;max-height:80px;overflow-y:auto}
+.sys-err-log:empty{display:none}
+</style>
+</head>
+<body>
+
+<div id="app">
+  <div class="hdr">
+    <div class="hdr-top">
+      <div>
+        <div class="hdr-title-wrap" style="display:flex;align-items:center;gap:10px"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" class="hdr-icon" aria-hidden="true"><g fill="none" stroke-linejoin="round" stroke-linecap="round" stroke-width="2"><polygon points="32,8 8,46 56,46" stroke="#00ff88" opacity="0.85"/><polygon points="18,14 4,52 40,42" stroke="#00f0ff" opacity="0.75"/><polygon points="46,14 60,52 24,42" stroke="#b347ff" opacity="0.75"/></g><ellipse cx="32" cy="33" rx="8" ry="5" fill="#0a0a14" stroke="#00f0ff" stroke-width="1.6"/><circle cx="32" cy="33" r="3.8" fill="#00f0ff"/><ellipse cx="32" cy="33" rx="1" ry="3.8" fill="#1a0033"/><circle cx="30.3" cy="31.3" r="0.8" fill="#fff"/></svg><div class="hdr-title">O.D.I.N.</div></div>
+        <div class="hdr-sub">Optimized Data Integration Network · v1.8.4</div>
+      </div>
+    </div>
+    <div class="hdr-status" id="hdrStatus"></div>
+    <div class="char-card" id="charCard"></div>
+  </div>
+
+  <div id="backupBanner"></div>
+
+  <div class="tabs">
+    <button class="tab active" data-tab="status">STATUS</button>
+    <button class="tab" data-tab="log">LOG</button>
+    <button class="tab" data-tab="plan">PLAN</button>
+    <button class="tab" data-tab="do">DO</button>
+    <button class="tab" data-tab="world" id="tabWorld" style="display:none">WORLD</button>
+    <button class="tab" data-tab="archive">ARCHIVE</button>
+    <button class="tab" data-tab="review">REVIEW</button>
+    <button class="tab" data-tab="sys">SYS</button>
+  </div>
+
+  <!-- STATUS -->
+  <div class="section active" id="sec-status">
+    <div id="v17Banner"></div>
+    <div id="phaseBanner"></div>
+    <div id="companionBubble"></div>
+    <div id="dayBoard"></div>
+    <div class="card accent-cyan">
+      <div class="card-title"><span class="title-text">Stato Vitali</span></div>
+      <div class="status-grid" id="statusGrid"></div>
+    </div>
+    <div class="card accent-purple">
+      <div class="card-title"><span class="title-text">Operazioni di oggi</span></div>
+      <div id="todayOps"></div>
+    </div>
+    <div class="card">
+      <div class="card-title"><span class="title-text">Ultime 3 note</span></div>
+      <div id="recentNotes"></div>
+    </div>
+    <div class="card accent-green">
+      <div class="card-title"><span class="title-text">Power-up rapido</span></div>
+      <div class="chips" id="quickPowerups"></div>
+    </div>
+  </div>
+
+  <!-- LOG (FIREWALL ZONE - no gamification) -->
+  <div class="section" id="sec-log">
+    <div class="card accent-cyan firewall">
+      <div class="card-title"><span class="title-text">Nota Rapida</span></div>
+      <textarea class="textarea" id="noteInput" placeholder="Scrivi quello che ti viene. Niente regole, niente lunghezza minima."></textarea>
+      <div style="margin-top:8px"><button class="btn btn-block" onclick="addNote()">+ Salva nota</button></div>
+      <div class="help good">Questa zona è no-XP per scelta: salvare una nota non ti dà punti, perché non vogliamo creare pressione sul "fare quanto" invece che "scrivere quello che è vero".</div>
+    </div>
+    <div class="card accent-magenta firewall">
+      <div class="card-title"><span class="title-text">Mood (1-10)</span></div>
+      <div class="scale" id="moodScale"></div>
+      <div class="scale-labels"><span>basso</span><span>medio</span><span>alto</span></div>
+    </div>
+    <div class="card firewall" style="border-left:2px solid var(--orange)">
+      <div class="card-title"><span class="title-text">Saturazione (carico %)</span></div>
+      <div class="scale" id="satScale"></div>
+      <div class="scale-labels"><span>scarico</span><span>medio</span><span>al limite</span></div>
+    </div>
+    <div class="card accent-red firewall">
+      <div class="card-title"><span class="title-text">Tilt (protocollo crisi)</span></div>
+      <label class="lab">Trigger</label>
+      <textarea class="textarea" id="tiltTrigger" placeholder="Cosa l'ha attivato?" style="min-height:55px"></textarea>
+      <label class="lab" style="margin-top:8px">Intensità (1-10)</label>
+      <div class="scale" id="tiltScale"></div>
+      <div style="margin-top:8px"><button class="btn btn-red btn-block" onclick="addTilt()">+ Salva tilt</button></div>
+    </div>
+    <div class="card accent-yellow firewall">
+      <div class="card-title"><span class="title-text">Hack</span></div>
+      <label class="lab">Cosa hai provato</label>
+      <textarea class="textarea" id="hackText" placeholder="Metodo alternativo, anti-noia..." style="min-height:55px"></textarea>
+      <label class="lab" style="margin-top:8px">Quanto ha funzionato (0-9)</label>
+      <div class="scale" id="hackScale"></div>
+      <div style="margin-top:8px"><button class="btn btn-yellow btn-block" onclick="addHack()">+ Salva hack</button></div>
+    </div>
+  </div>
+
+  <!-- PLAN (v1.7) -->
+  <div class="section" id="sec-plan">
+    <div class="card accent-cyan">
+      <div class="card-title"><span class="title-text">Routine giornaliera</span></div>
+      <div class="help">La struttura della giornata. Tap su una voce per marcarla fatta. Lo stato si resetta automaticamente ogni notte.</div>
+      <div id="planRoutinesList" style="margin-top:10px"></div>
+    </div>
+  </div>
+
+  <!-- DO (gamification zone) -->
+  <div class="section" id="sec-do">
+    <div class="subnav">
+      <button class="active" data-do="habits">Protocols</button>
+      <button data-do="dailies">Daily Ops</button>
+      <button data-do="tasks">Missions</button>
+      <button data-do="pomo">Focus</button>
+      <button data-do="shop">Rewards</button>
+    </div>
+
+    <!-- HABITS -->
+    <div class="do-section" id="do-habits">
+      <div class="card accent-cyan">
+        <div class="card-title"><span class="title-text">Habit / Protocols</span><div class="title-actions"><button class="btn btn-sm" onclick="toggleHabitForm()">+ NEW</button></div></div>
+        <div id="habitForm" style="display:none" class="task-form">
+          <label class="lab">Nome abitudine</label>
+          <input type="text" class="input" id="habitName" placeholder="es: Magnesio quotidiano">
+          <div class="row">
+            <div><label class="lab">Tipo</label><select class="select" id="habitType"><option value="+">➕ Positiva</option><option value="-">➖ Negativa</option><option value="+-">± Entrambe</option></select></div>
+            <div><label class="lab">Difficoltà</label><select class="select" id="habitDiff"><option value="1">Facile (+2 XP)</option><option value="2" selected>Media (+5 XP)</option><option value="3">Hard (+10 XP)</option></select></div>
+          </div>
+          <div style="margin-top:8px"><button class="btn btn-block" onclick="addHabit()">Crea abitudine</button></div>
+          <div class="help">Le abitudini ti danno XP per ogni tap. Le negative tolgono XP quando le tap. Niente pressione: se non tappi, non succede nulla.</div>
+        </div>
+        <div id="habitsList"></div>
+      </div>
+    </div>
+
+    <!-- DAILIES -->
+    <div class="do-section" id="do-dailies" style="display:none">
+      <div class="card accent-purple">
+        <div class="card-title"><span class="title-text">Daily Operations</span><div class="title-actions"><button class="btn btn-sm btn-purple" onclick="toggleDailyForm()">+ NEW</button></div></div>
+        <div id="dailyForm" style="display:none" class="task-form">
+          <label class="lab">Nome daily</label>
+          <input type="text" class="input" id="dailyName" placeholder="es: Studio 1h">
+          <div class="row">
+            <div><label class="lab">Difficoltà</label><select class="select" id="dailyDiff"><option value="1">Facile (+5 XP)</option><option value="2" selected>Media (+10 XP)</option><option value="3">Hard (+20 XP)</option></select></div>
+            <div><label class="lab">Frequenza</label><select class="select" id="dailyFreq"><option value="daily">Ogni giorno</option><option value="weekdays">Lun-Ven</option><option value="weekend">Sab-Dom</option></select></div>
+          </div>
+          <div style="margin-top:8px"><button class="btn btn-purple btn-block" onclick="addDaily()">Crea daily</button></div>
+          <div class="help">Daily si resettano alla mezzanotte. Se non le fai, perdi un po' di HP (modalità soft Habitica). Spunta = XP guadagnati.</div>
+        </div>
+        <div id="dailiesList"></div>
+      </div>
+    </div>
+
+    <!-- TASKS -->
+    <div class="do-section" id="do-tasks" style="display:none">
+      <div class="card accent-magenta">
+        <div class="card-title"><span class="title-text">Missions (Task)</span><div class="title-actions"><button class="btn btn-sm btn-magenta" onclick="toggleTaskForm()">+ NEW</button></div></div>
+        <div id="taskForm" style="display:none" class="task-form">
+          <label class="lab">Titolo mission</label>
+          <input type="text" class="input" id="taskTitle" placeholder="es: Capitolo 3 di matematica">
+          <div class="row">
+            <div><label class="lab">Lista</label><select class="select" id="taskList"></select></div>
+            <div><label class="lab">Priorità</label><select class="select" id="taskPriority"><option value="1">Bassa</option><option value="2" selected>Media</option><option value="3">Alta</option></select></div>
+          </div>
+          <div class="row">
+            <div><label class="lab">Scadenza</label><input type="date" class="input" id="taskDue"></div>
+            <div><label class="lab">Difficoltà</label><select class="select" id="taskDiff"><option value="1">Easy (+5 XP)</option><option value="2" selected>Med (+10 XP)</option><option value="3">Hard (+20 XP)</option></select></div>
+          </div>
+          <div class="row full"><div><label class="lab">Tag (separati da virgola)</label><input type="text" class="input" id="taskTags" placeholder="esami, matematica"></div></div>
+          <div style="margin-top:8px"><button class="btn btn-magenta btn-block" onclick="addTask()">Crea mission</button></div>
+        </div>
+
+        <label class="lab" style="margin-top:6px">Filtra per lista</label>
+        <div class="lists-grid" id="listsFilter"></div>
+
+        <label class="lab" style="margin-top:4px">Vista</label>
+        <div class="subnav" style="margin-bottom:8px">
+          <button class="active" data-view="today">Oggi</button>
+          <button data-view="week">Settimana</button>
+          <button data-view="all">Tutte</button>
+          <button data-view="done">Fatte</button>
+        </div>
+        <div id="tasksList"></div>
+      </div>
+    </div>
+
+    <!-- POMODORO -->
+    <div class="do-section" id="do-pomo" style="display:none">
+      <div class="card accent-cyan">
+        <div class="card-title"><span class="title-text">Focus Session (Pomodoro)</span></div>
+        <div class="pomodoro">
+          <div class="pomo-time" id="pomoTime">25:00</div>
+          <div class="pomo-state" id="pomoState">READY</div>
+          <div class="pomo-controls">
+            <button class="btn" id="pomoStart" onclick="pomoStart()">Start</button>
+            <button class="btn btn-yellow" id="pomoPause" onclick="pomoPause()" style="display:none">Pausa</button>
+            <button class="btn btn-ghost" onclick="pomoReset()">Reset</button>
+          </div>
+        </div>
+        <div class="row" style="display:grid;grid-template-columns:1fr 1fr;gap:6px;margin-top:8px">
+          <div><label class="lab">Sessione (min)</label><input type="number" class="input" id="pomoFocus" value="25" min="5" max="60" onchange="pomoConfigChange()"></div>
+          <div><label class="lab">Pausa (min)</label><input type="number" class="input" id="pomoBreak" value="5" min="1" max="30" onchange="pomoConfigChange()"></div>
+        </div>
+        <div class="help">XP scalati ai minuti: 25 min → 15 XP · 50 min → 30 XP · 1 min → 1 XP. Cap a 30. Il timer continua anche se chiudi la schermata o spegni lo schermo (deadline persistente).</div>
+        <div style="margin-top:8px"><button class="btn btn-ghost btn-sm" onclick="pomoRequestNotificationPermission()">🔔 Attiva notifiche fine sessione</button></div>
+        <div id="pomoStats" style="margin-top:8px;font-size:11px;color:var(--txt-dim)"></div>
+      </div>
+    </div>
+
+    <!-- REWARDS SHOP -->
+    <div class="do-section" id="do-shop" style="display:none">
+      <div class="card accent-yellow">
+        <div class="card-title"><span class="title-text">Reward Shop</span><div class="title-actions"><button class="btn btn-sm btn-yellow" onclick="toggleRewardForm()">+ NEW</button></div></div>
+        <div id="rewardForm" style="display:none" class="task-form">
+          <label class="lab">Nome reward</label>
+          <input type="text" class="input" id="rewardName" placeholder="es: 30 min videogioco senza sensi di colpa">
+          <label class="lab" style="margin-top:8px">Costo in token</label>
+          <input type="number" class="input" id="rewardCost" value="50" min="5" max="1000">
+          <div style="margin-top:8px"><button class="btn btn-yellow btn-block" onclick="addReward()">Crea reward</button></div>
+          <div class="help">I reward li definisci TU. Token guadagnati: 1 token ogni 10 XP. Spendi quando vuoi.</div>
+        </div>
+        <div id="rewardsList"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- WORLD (v1.7 Secondo Mondo - only visible if enabled) -->
+  <div class="section" id="sec-world">
+    <div class="world-header">
+      <div class="world-title">SECONDO MONDO</div>
+      <div class="world-sub" id="worldSub">Sistema personale · in espansione</div>
+    </div>
+    <div class="world-map" id="worldMap"></div>
+    <div class="card">
+      <div class="card-title"><span class="title-text">Stanze del mondo</span></div>
+      <div class="help">Ogni stanza si sblocca con azioni reali. Il mondo cresce con te.</div>
+      <div class="world-rooms" id="worldRooms" style="margin-top:10px"></div>
+    </div>
+    <div class="card accent-magenta">
+      <div class="card-title"><span class="title-text">Idee / Creative log</span><div class="title-actions"><button class="btn btn-sm btn-magenta" onclick="toggleIdeaForm()">+ NEW</button></div></div>
+      <div id="ideaFormBox" style="display:none">
+        <textarea class="input" id="ideaInput" placeholder="Cattura un'idea, un pensiero, un progetto..." rows="3"></textarea>
+        <select class="input" id="ideaCategory" style="margin-top:6px">
+          <option value="">Categoria (opzionale)</option>
+          <option value="code">💻 Programmazione</option>
+          <option value="music">🎵 Musica</option>
+          <option value="art">🎨 Arte/Disegno</option>
+          <option value="write">✍️ Scrittura</option>
+          <option value="business">💼 Business</option>
+          <option value="hobby">🎮 Hobby</option>
+          <option value="other">💡 Altro</option>
+        </select>
+        <div style="margin-top:6px"><button class="btn btn-magenta btn-block" onclick="addIdea()">💡 Cattura idea</button></div>
+      </div>
+      <div id="ideasList" style="margin-top:10px"></div>
+    </div>
+    <div class="card accent-yellow">
+      <div class="card-title"><span class="title-text">Achievement rari</span></div>
+      <div class="help">Riconoscimenti basati su pattern reali, non su XP arbitrari.</div>
+      <div id="achievementsList" style="margin-top:10px"></div>
+    </div>
+  </div>
+
+  <!-- ARCHIVE -->
+  <div class="section" id="sec-archive">
+    <div class="card">
+      <div class="card-title"><span class="title-text">Archivio Eventi</span></div>
+      <input type="text" class="input" id="searchInput" placeholder="🔍 cerca..." oninput="renderArchive()" style="margin-bottom:8px">
+      <div class="history-counts" id="filterPills"></div>
+      <div id="archiveList"></div>
+    </div>
+  </div>
+
+  <!-- REVIEW -->
+  <div class="section" id="sec-review">
+    <div class="card accent-green">
+      <div class="card-title"><span class="title-text">Weekly Review · No-Judgment Zone</span></div>
+      <div id="weeklyReview"></div>
+    </div>
+    <div class="card accent-purple">
+      <div class="card-title"><span class="title-text">Achievements & Stats</span></div>
+      <div id="achievements"></div>
+    </div>
+  </div>
+
+  <!-- SYS -->
+  <div class="section" id="sec-sys">
+
+    <div class="mode-toggle" id="modeToggle" onclick="toggleExamMode()">
+      <div class="mode-toggle-row">
+        <div class="mode-icon" id="modeIcon">🌙</div>
+        <div class="mode-info">
+          <div class="mode-label" id="modeLabel">QUIET MODE · ATTIVA</div>
+          <div class="mode-desc" id="modeDesc">No XP, no penalità. Tracking puro. Tap per cambiare.</div>
+        </div>
+        <div class="mode-switch"></div>
+      </div>
+    </div>
+
+    <div class="card accent-cyan">
+      <div class="card-title"><span class="title-text">Feedback Sensoriale</span></div>
+      <label class="fx-row">
+        <span>🔊 Audio</span>
+        <input type="checkbox" id="fxSound" onchange="setFx('sound', this.checked)">
+      </label>
+      <label class="fx-row">
+        <span>📳 Vibrazione</span>
+        <input type="checkbox" id="fxVibrate" onchange="setFx('vibrate', this.checked)">
+      </label>
+      <label class="fx-row">
+        <span>✨ Animazioni</span>
+        <select id="fxAnim" onchange="setFx('anim', this.value)">
+          <option value="standard">Standard</option>
+          <option value="reduced">Ridotte</option>
+          <option value="off">Off</option>
+        </select>
+      </label>
+      <div class="help" style="margin-top:8px">Feedback solo nella DO zone (habit, daily, mission, pomo). La LOG zone (note, mood, sat, tilt, hack) resta sempre neutra · firewall sensoriale.</div>
+    </div>
+
+    <!-- v1.7: PHASE selector -->
+    <div class="card accent-yellow">
+      <div class="card-title"><span class="title-text">Fase corrente</span></div>
+      <label class="lab">Fase di vita attuale</label>
+      <select class="input" id="phaseSelect" onchange="setPhase(this.value)">
+        <option value="pre-exam">🔥 Pre-esame</option>
+        <option value="transition">🌅 Transizione (esami chiusi)</option>
+        <option value="normal">🌿 Normale</option>
+      </select>
+      <div class="help" style="margin-top:6px">Cambia il framing dell'app. La fase passa automaticamente da pre-exam a transizione quando la data esame nel setup è passata.</div>
+    </div>
+
+    <!-- v1.7: SECONDO MONDO toggle -->
+    <div class="card accent-magenta">
+      <div class="card-title"><span class="title-text">🌌 Secondo Mondo (sperimentale)</span></div>
+      <div class="help">Modalità immersiva extra: mondo che cresce con te, stanze sbloccabili, companion, achievement rari. Disattivabile in qualsiasi momento — i dati restano.</div>
+      <label class="fx-row" style="margin-top:8px">
+        <span>🌌 Attiva Secondo Mondo</span>
+        <input type="checkbox" id="sm2Toggle" onchange="toggleSecondoMondo()">
+      </label>
+      <div id="sm2CompanionRow" style="display:none">
+        <label class="fx-row">
+          <span>🛸 Companion: <span id="sm2CompName" style="color:var(--cyan)"></span></span>
+          <button class="btn btn-sm btn-ghost" onclick="askCompanionName()">rinomina</button>
+        </label>
+      </div>
+      <div class="help good" style="margin-top:6px">Richiede Modalità Completa (auto-switch al primo avvio).</div>
+    </div>
+
+    <!-- v1.7: HP SOFT -->
+    <div class="card accent-red">
+      <div class="card-title"><span class="title-text">⚔ Penalità HP (soft)</span></div>
+      <div class="help">Sistema di penalità leggero per daily mancate. Funziona solo in Modalità Completa. Con safety rails: -2 HP max per daily mancata, cap totale -6/giorno, +5 HP per ogni nota loggata.</div>
+      <label class="fx-row" style="margin-top:8px">
+        <span>Attiva HP soft</span>
+        <input type="checkbox" id="hpSoftToggle" onchange="toggleHpSoft()">
+      </label>
+      <div style="margin-top:8px">
+        <button class="btn btn-sm btn-ghost btn-block" onclick="resetHP()">↻ Reset HP al massimo</button>
+      </div>
+      <div class="help" style="margin-top:6px">Niente shame. Resetta se ti serve respirare.</div>
+    </div>
+
+    <div id="sysStatusHost"></div>
+
+    <div class="card accent-cyan">
+      <div class="card-title"><span class="title-text">Backup Dati</span></div>
+      <div id="backupStatus" class="help"></div>
+      <div class="btn-row tight" style="margin-top:8px">
+        <button class="btn btn-green" onclick="exportJSON()">⬇ Backup JSON</button>
+        <button class="btn btn-yellow" onclick="document.getElementById('importFile').click()">⬆ Ripristina JSON</button>
+      </div>
+      <input type="file" id="importFile" accept=".json,application/json" style="display:none" onchange="importJSON(event)">
+      <div class="help warn" style="margin-top:8px">⚠ Safari iOS può cancellare dati dopo 7gg inattività. Fai backup periodici.</div>
+      <div class="help good" style="margin-top:4px">✓ I dati restano salvati anche dopo export. Lo storico è permanente fino a Reset.</div>
+    </div>
+
+    <div class="card accent-magenta">
+      <div class="card-title"><span class="title-text">Export Testo (per analisi)</span></div>
+      <div class="btn-row tight">
+        <button class="btn btn-magenta" onclick="generateTextExport()">Genera</button>
+        <button class="btn btn-ghost" onclick="copyTextExport()">📋 Copia</button>
+      </div>
+      <div id="textExport" style="margin-top:8px"></div>
+    </div>
+
+    <div class="card">
+      <div class="card-title"><span class="title-text">Obiettivi Generali</span><div class="title-actions"><button class="btn btn-sm" onclick="toggleGoalForm()">+ NEW</button></div></div>
+      <div id="goalFormBox" style="display:none">
+        <input type="text" class="input" id="goalInput" placeholder="es: finire esame finale">
+        <div style="margin-top:6px"><button class="btn btn-block" onclick="addGoal()">+ Aggiungi</button></div>
+      </div>
+      <div id="goalsList" style="margin-top:8px"></div>
+    </div>
+
+    <div class="card">
+      <div class="card-title"><span class="title-text">Setup esami</span></div>
+      <label class="lab">Data esami BBW</label><input type="date" class="input" id="examDate" onchange="updateSettings()">
+      <label class="lab" style="margin-top:8px">Nachteilsausgleich</label><input type="text" class="input" id="ntaInput" placeholder="es: 25% tempo extra" onchange="updateSettings()">
+      <label class="lab" style="margin-top:8px">Patente</label><input type="text" class="input" id="patenteInput" placeholder="es: in corso" onchange="updateSettings()">
+    </div>
+
+    <div class="card accent-green">
+      <div class="card-title"><span class="title-text">Liste / Progetti Missions</span></div>
+      <div id="listsManager"></div>
+      <input type="text" class="input" id="newListName" placeholder="nome lista (es: Esami)" style="margin-top:8px">
+      <div style="margin-top:6px"><button class="btn btn-green btn-block" onclick="addList()">+ Aggiungi lista</button></div>
+    </div>
+
+    <div class="card accent-green">
+      <div class="card-title"><span class="title-text">Personalizza Power-up</span></div>
+      <div id="customPowerupsList" style="margin-bottom:6px"></div>
+      <input type="text" class="input" id="newPowerupInput" placeholder="🎵 musica chill">
+      <div style="margin-top:6px"><button class="btn btn-green btn-block" onclick="addCustomPowerup()">+ Aggiungi</button></div>
+    </div>
+
+    <div class="card accent-red">
+      <div class="card-title"><span class="title-text">Zona Pericolo</span></div>
+      <button class="btn btn-red btn-block" onclick="confirmReset()">⚠ Reset totale</button>
+      <div class="help danger">Cancella TUTTO. Fai backup prima.</div>
+    </div>
+  </div>
+
+  <div class="footer">
+    O.D.I.N. v1.7 · phase-aware · PLAN · STIMULI · Secondo Mondo · firewall preserved<br>
+    <span id="footerStats" style="color:var(--txt-faint)"></span>
+  </div>
+</div>
+
+<div id="toastHost"></div>
+<div id="levelupHost"></div>
+<div id="welcomeHost"></div>
+<div id="stimulusHost"></div>
+<div id="achievementHost"></div>
+<button class="stim-button" id="stimButton" onclick="showRandomStimulus()" title="Stimolo casuale">🎲</button>
+
+<script>
+// ============================================================
+// O.D.I.N. v1.5 - TickTick + Habitica integration
+// ============================================================
+const STORAGE_KEY = 'odin_v12_francesco';
+const VERSION = '1.8.4';
+
+const DEFAULT_POWERUPS = ['🚶 Camminata','🚲 Bici','🎵 Musica chill','🧘 Respiro 5min','🛁 Doccia','☕ Pausa caffè','🛏️ Power nap','🌳 Aria fresca','🥊 Kickboxen','📺 Episodio serie','💊 Magnesio + relax','📞 Chiamata amico'];
+
+const DEFAULT_LISTS = [
+  {id:'inbox', name:'Inbox', emoji:'📥'},
+  {id:'studio', name:'Studio', emoji:'📚'},
+  {id:'esami', name:'Esami', emoji:'🎯'},
+  {id:'salute', name:'Salute', emoji:'💊'},
+  {id:'vita', name:'Vita', emoji:'🌳'}
+];
+
+// v1.7: DEFAULT ROUTINES (4 blocks of the day)
+const DEFAULT_ROUTINES = [
+  {id:'morning', emoji:'☼', label:'MATTINA', timeHint:'07:00-09:30', items:['Sveglia + acqua','Colazione','Magnesio','Vestiti']},
+  {id:'work', emoji:'⚙', label:'LAVORO / STUDIO', timeHint:'10:00-13:00', items:['Focus session 1 (Pomodoro)','Pausa attiva','Focus session 2']},
+  {id:'afternoon', emoji:'☾', label:'POMERIGGIO', timeHint:'14:00-18:00', items:['Pranzo','Movimento (bici / kickboxen)','Decompressione']},
+  {id:'evening', emoji:'★', label:'SERA', timeHint:'19:00-23:00', items:['Cena','Tempo libero / hobby','Wind-down (no schermi)','Sonno']}
+];
+
+// v1.7: STIMULI library — creative + anti-boredom + brain + reset
+const STIMULI = [
+  // Creative (15)
+  {cat:'create', emoji:'🎨', text:'Disegna in 3 minuti qualcosa che vedi adesso'},
+  {cat:'create', emoji:'✍️', text:'Scrivi 5 frasi su come ti senti usando metafore tech'},
+  {cat:'create', emoji:'💡', text:'Inventa 3 nomi per un\'app immaginaria'},
+  {cat:'create', emoji:'📸', text:'Foto di un dettaglio che noti solo ora'},
+  {cat:'create', emoji:'🎵', text:'Componi 8 battute con un\'app di musica'},
+  {cat:'create', emoji:'🧩', text:'Scrivi una storia di 5 frasi su un personaggio futuro'},
+  {cat:'create', emoji:'🎭', text:'Inventa un dialogo tra due AI che si litigano'},
+  {cat:'create', emoji:'🗺️', text:'Disegna la mappa di un quartiere immaginario'},
+  {cat:'create', emoji:'⚡', text:'Scrivi 10 idee in 5 minuti, qualunque cosa'},
+  {cat:'create', emoji:'🔧', text:'Pensa a un oggetto e modificalo: nuova funzione assurda'},
+  {cat:'create', emoji:'🎮', text:'Inventa una regola per un gioco da tavolo'},
+  {cat:'create', emoji:'🧠', text:'Combina 2 hobby tuoi: che cosa esce?'},
+  {cat:'create', emoji:'🌌', text:'Descrivi un pianeta che non esiste'},
+  {cat:'create', emoji:'📝', text:'Lista 7 cose che ti hanno sorpreso questa settimana'},
+  {cat:'create', emoji:'🎬', text:'Trama di un cortometraggio in 3 frasi'},
+  // Anti-boredom (8)
+  {cat:'hack', emoji:'🏃', text:'Cambia stanza per i prossimi 30 minuti'},
+  {cat:'hack', emoji:'💪', text:'Fai 10 squat fra una mail e l\'altra'},
+  {cat:'hack', emoji:'🧍', text:'Studia in piedi per 20 minuti'},
+  {cat:'hack', emoji:'🎧', text:'Cambia genere musicale di sottofondo'},
+  {cat:'hack', emoji:'⏱️', text:'Imposta un timer da 7 minuti, vai veloce'},
+  {cat:'hack', emoji:'🔄', text:'Inverti l\'ordine dei task che pensavi di fare'},
+  {cat:'hack', emoji:'📍', text:'Sposta il setup di studio in un altro posto'},
+  {cat:'hack', emoji:'🤝', text:'Spiega ad alta voce a un finto pubblico cosa stai facendo'},
+  // Brain (8)
+  {cat:'brain', emoji:'👶', text:'Spiega un argomento difficile a un bambino di 8 anni'},
+  {cat:'brain', emoji:'🔗', text:'Trova 3 collegamenti tra il tuo lavoro e un hobby qualsiasi'},
+  {cat:'brain', emoji:'❓', text:'Fai 5 domande "perché" su qualcosa di ovvio'},
+  {cat:'brain', emoji:'🪞', text:'Cosa diresti a te stesso di 5 anni fa?'},
+  {cat:'brain', emoji:'🔮', text:'Immagina la tua giornata fra 6 mesi'},
+  {cat:'brain', emoji:'⚖️', text:'Lista pro/contro di un\'idea che hai in testa'},
+  {cat:'brain', emoji:'🎯', text:'Cos\'è la cosa che NON vorresti fare oggi? Perché?'},
+  {cat:'brain', emoji:'🧮', text:'Quanti minuti hai libero questa settimana? Calcola'},
+  // Reset (6)
+  {cat:'reset', emoji:'🌳', text:'5 minuti fuori senza telefono'},
+  {cat:'reset', emoji:'❄️', text:'Doccia fredda per 30 secondi'},
+  {cat:'reset', emoji:'🌬️', text:'Respira 4-7-8 per 3 cicli'},
+  {cat:'reset', emoji:'🧘', text:'Stretching del collo per 2 minuti'},
+  {cat:'reset', emoji:'💧', text:'Bevi un bicchiere d\'acqua lentamente'},
+  {cat:'reset', emoji:'🪟', text:'Guarda fuori dalla finestra per 60 secondi, lontano'}
+];
+
+// v1.7: COMPANION message bank
+const COMPANION_MSGS = {
+  greeting: [
+    'Sistema online. Bentornato.',
+    'Connessione stabilita. Pronto.',
+    'Online. Cosa ottimizziamo oggi?',
+    'Sono qui. Tu sei qui. Si parte.'
+  ],
+  on_tilt_logged: [
+    'Tilt registrato. Hai fatto la cosa giusta a notarlo.',
+    'Trigger identificato. Dato salvato per pattern analysis.',
+    'Hai catturato il momento. Questo è già controllo.'
+  ],
+  on_hack_logged: [
+    'Hack salvato. Anti-monotony protocol updated.',
+    'Strategia archiviata. Riutilizzabile.',
+    'Buon trucco. Lo riconoscerò la prossima volta.'
+  ],
+  on_idea_logged: [
+    'Idea catturata. Una scintilla nel sistema.',
+    'Pensiero loggato. Non si perderà.',
+    'Idea acquisita. Prima o poi questa torna utile.'
+  ],
+  on_streak_5: [
+    'Cinque giorni consecutivi. Stable pattern detected.',
+    'Streak attiva. Routine si sta consolidando.'
+  ],
+  on_streak_10: [
+    'Dieci giorni. La routine è ormai sistema.',
+    'Pattern consolidato. Bel lavoro.'
+  ],
+  on_room_unlock: [
+    'Nuova stanza accessibile nel mondo. Esplora.',
+    'Sezione del mondo sbloccata. Dai un\'occhiata.'
+  ],
+  on_achievement: [
+    'Achievement raro sbloccato. Questo conta davvero.',
+    'Riconoscimento permanente acquisito.'
+  ],
+  on_silence_3d: [
+    'Tre giorni di silenzio. Tutto ok? Anche solo una nota mi aiuta a capire.',
+    'Sei sparito un po\'. Nessun obbligo, solo curiosità.'
+  ],
+  daily: [
+    'Cosa ti vorresti ricordare di oggi?',
+    'Quale routine ti riesce facile oggi?',
+    'Una cosa piccola che puoi creare nei prossimi 10 minuti?',
+    'Hai un\'idea che ti gira in testa? Catturala.',
+    'C\'è qualcosa che ti sta saturando? Loggalo.'
+  ]
+};
+
+// v1.7: ACHIEVEMENTS catalog
+const ACHIEVEMENTS = [
+  {id:'chronicler', emoji:'🥉', name:'Cronachista', desc:'30 giorni con almeno 1 nota', test: st => {
+    const days = new Set(st.notes.map(n => dayKey(n.ts))); return days.size >= 30;
+  }, prog: st => Math.min(30, new Set(st.notes.map(n => dayKey(n.ts))).size) + '/30'},
+  {id:'forge', emoji:'⚒️', name:'Forgia', desc:'5 tilt loggati', test: st => st.tilts.length >= 5,
+   prog: st => Math.min(5, st.tilts.length) + '/5'},
+  {id:'innovator', emoji:'💡', name:'Innovatore', desc:'10 hack inventati', test: st => st.hacks.length >= 10,
+   prog: st => Math.min(10, st.hacks.length) + '/10'},
+  {id:'storm', emoji:'🌪️', name:'Storm Walker', desc:'7 giorni con 0 tilt + ≥3 daily', test: st => false,
+   prog: st => 'in calcolo'},
+  {id:'genesis', emoji:'🎨', name:'Genesi', desc:'30 idee creative salvate', test: st => st.ideas.length >= 30,
+   prog: st => Math.min(30, st.ideas.length) + '/30'},
+  {id:'cartographer', emoji:'👁️', name:'Cartografo', desc:'Tutte e 5 le stanze sbloccate', test: st => (st.world.roomsUnlocked || []).length >= 5,
+   prog: st => Math.min(5, (st.world.roomsUnlocked || []).length) + '/5'}
+];
+
+// v1.7: WORLD rooms (Secondo Mondo)
+const ROOMS = [
+  {id:'workshop', emoji:'🔧', name:'Workshop', area:'Lavoro/Ausbildung', test: st => st.tasks.filter(t=>t.done).length >= 10,
+   prog: st => Math.min(10, st.tasks.filter(t=>t.done).length) + '/10 task'},
+  {id:'lab', emoji:'🧠', name:'Lab', area:'Studio/Apprendimento', test: st => st.pomoSessions.length >= 5,
+   prog: st => Math.min(5, st.pomoSessions.length) + '/5 pomo'},
+  {id:'vault', emoji:'❤️', name:'Vault', area:'Salute/Cura', test: st => st.powerups.length >= 7,
+   prog: st => Math.min(7, st.powerups.length) + '/7 p-up'},
+  {id:'atelier', emoji:'🎨', name:'Atelier', area:'Creatività', test: st => st.ideas.length >= 3,
+   prog: st => Math.min(3, st.ideas.length) + '/3 idee'},
+  {id:'network', emoji:'🌐', name:'Network', area:'Socialità', test: st => st.notes.filter(n => /\b(amico|amica|mamma|papà|sorella|fratello|coleg|prof)/i.test(n.text)).length >= 5,
+   prog: st => Math.min(5, st.notes.filter(n => /\b(amico|amica|mamma|papà|sorella|fratello|coleg|prof)/i.test(n.text)).length) + '/5 note'}
+];
+
+// Cyberpunk avatar progression
+const TIERS = [
+  {min:1, max:5, avatar:'🥷', class:'Script Kiddie'},
+  {min:6, max:10, avatar:'🤖', class:'Daemon'},
+  {min:11, max:18, avatar:'🦹', class:'Black Hat'},
+  {min:19, max:30, avatar:'🧙', class:'Phreak'},
+  {min:31, max:45, avatar:'⚡', class:'Netrunner'},
+  {min:46, max:65, avatar:'👁️', class:'Architect'},
+  {min:66, max:99, avatar:'💎', class:'Legend'},
+  {min:100, max:9999, avatar:'🌌', class:'Singularity'}
+];
+
+let state = loadState();
+let pendingTiltIntensity = 5, pendingHackRating = 5;
+let activeFilter = 'all', activeListFilter = 'all', activeTaskView = 'today', activeDoSection = 'habits';
+
+function defaultState() {
+  return {
+    version: VERSION,
+    startDate: new Date().toISOString(),
+    settings: {
+      examDate: null, nachteilsausgleich: null, patente: null,
+      customPowerups: [...DEFAULT_POWERUPS],
+      lists: [...DEFAULT_LISTS],
+      examMode: true,           // v1.6: Quiet Mode default ON (legacy name)
+      welcomeShown: false,
+      fx: { sound: true, vibrate: true, anim: 'standard' },
+      // v1.7: NEW
+      phase: 'pre-exam',                            // 'pre-exam' | 'transition' | 'normal'
+      secondoMondo: false,                          // toggle Secondo Mondo on/off
+      companionName: null,                          // user-set companion name
+      hpSoft: { enabled: false, dmgPerMiss: 2, maxDmgPerDay: 6, regenPerLog: 5 },
+      planRoutines: [...DEFAULT_ROUTINES],          // daily structure blocks
+      v17Shown: false,                               // one-time v1.7 welcome
+      pomoActive: null,                              // v1.8.1: { endAt, mode, startedAt, plannedMin, paused, pausedRemaining }
+      pomoNotifyOK: false                            // v1.8.1: user-granted Notification permission
+    },
+    goals: [], notes: [], moods: [], saturations: [], tilts: [], hacks: [], powerups: [],
+    tasks: [], habits: [], dailies: [], rewards: [], pomoSessions: [],
+    // v1.7: NEW
+    ideas: [],                                       // creative log
+    achievements: [],                                // unlocked badges (ids)
+    routineLog: [],                                  // {ts, blockId, action: 'done'|'skip'}
+    companion: { lastMsg: null, lastMsgAt: null },   // companion state
+    world: { roomsUnlocked: [], lastCheck: null },   // world state
+    game: { xp: 0, level: 1, hp: 50, maxHp: 50, tokens: 0, totalXP: 0, lastDailyReset: null, lastHpDmgDay: null, dmgToday: 0 },
+    lastBackup: null
+  };
+}
+
+function loadState() {
+  try {
+    const raw = localStorage.getItem(STORAGE_KEY);
+    if (!raw) return defaultState();
+    return migrate(JSON.parse(raw));
+  } catch (e) { return defaultState(); }
+}
+
+function migrate(s) {
+  const def = defaultState();
+  if (!s || typeof s !== 'object' || Array.isArray(s)) return def;
+  // v1.7.1 FIX: normalizza ts a stringa ISO. Backup pre-v1.5 possono contenere ts numerici
+  // (Date.now()). Senza questa normalizzazione le successive .ts.slice(0,10) crashano.
+  const validEvents = (arr) => Array.isArray(arr) ? arr
+    .filter(e => e && typeof e === 'object' && e.ts && !isNaN(new Date(e.ts).getTime()))
+    .map(e => ({ ...e, ts: typeof e.ts === 'string' ? e.ts : new Date(e.ts).toISOString() })) : [];
+  return {
+    version: VERSION,
+    startDate: s.startDate || def.startDate,
+    settings: {
+      examDate: s.settings?.examDate ?? null,
+      nachteilsausgleich: s.settings?.nachteilsausgleich ?? null,
+      patente: s.settings?.patente ?? null,
+      customPowerups: (Array.isArray(s.settings?.customPowerups) && s.settings.customPowerups.length) ? s.settings.customPowerups.filter(p => typeof p === 'string') : [...DEFAULT_POWERUPS],
+      lists: (Array.isArray(s.settings?.lists) && s.settings.lists.length) ? s.settings.lists : [...DEFAULT_LISTS],
+      examMode: s.settings?.examMode !== undefined ? !!s.settings.examMode : true,
+      welcomeShown: !!s.settings?.welcomeShown,
+      fx: {
+        sound: s.settings?.fx?.sound !== undefined ? !!s.settings.fx.sound : true,
+        vibrate: s.settings?.fx?.vibrate !== undefined ? !!s.settings.fx.vibrate : true,
+        anim: ['standard','reduced','off'].includes(s.settings?.fx?.anim) ? s.settings.fx.anim : 'standard'
+      },
+      // v1.7 fields
+      phase: ['pre-exam','transition','normal'].includes(s.settings?.phase) ? s.settings.phase : 'pre-exam',
+      secondoMondo: !!s.settings?.secondoMondo,
+      companionName: typeof s.settings?.companionName === 'string' ? s.settings.companionName : null,
+      hpSoft: {
+        enabled: !!s.settings?.hpSoft?.enabled,
+        dmgPerMiss: Math.max(0, Math.min(10, Number(s.settings?.hpSoft?.dmgPerMiss) || 2)),
+        maxDmgPerDay: Math.max(0, Math.min(30, Number(s.settings?.hpSoft?.maxDmgPerDay) || 6)),
+        regenPerLog: Math.max(0, Math.min(20, Number(s.settings?.hpSoft?.regenPerLog) || 5))
+      },
+      planRoutines: Array.isArray(s.settings?.planRoutines) && s.settings.planRoutines.length ? s.settings.planRoutines : [...DEFAULT_ROUTINES],
+      v17Shown: !!s.settings?.v17Shown,
+      // v1.8.1: pomodoro persistence
+      pomoActive: (s.settings?.pomoActive && typeof s.settings.pomoActive === 'object'
+        && Number.isFinite(s.settings.pomoActive.endAt)
+        && ['focus','break'].includes(s.settings.pomoActive.mode)
+        && Number.isFinite(s.settings.pomoActive.plannedMin)
+        && s.settings.pomoActive.plannedMin >= 1 && s.settings.pomoActive.plannedMin <= 180)
+        ? {
+            endAt: Number(s.settings.pomoActive.endAt),
+            mode: s.settings.pomoActive.mode,
+            startedAt: Number(s.settings.pomoActive.startedAt) || Date.now(),
+            plannedMin: Number(s.settings.pomoActive.plannedMin),
+            paused: !!s.settings.pomoActive.paused,
+            pausedRemaining: Number(s.settings.pomoActive.pausedRemaining) || 0
+          }
+        : null,
+      pomoNotifyOK: !!s.settings?.pomoNotifyOK
+    },
+    goals: Array.isArray(s.goals) ? s.goals.filter(g => g && g.text) : [],
+    notes: validEvents(s.notes).filter(n => typeof n.text === 'string'),
+    moods: validEvents(s.moods).filter(m => typeof m.value === 'number'),
+    saturations: validEvents(s.saturations).filter(m => typeof m.value === 'number'),
+    tilts: validEvents(s.tilts),
+    hacks: validEvents(s.hacks),
+    powerups: validEvents(s.powerups),
+    tasks: Array.isArray(s.tasks) ? s.tasks.filter(t => t && t.id) : [],
+    habits: Array.isArray(s.habits) ? s.habits.filter(h => h && h.id) : [],
+    dailies: Array.isArray(s.dailies) ? s.dailies.filter(d => d && d.id) : [],
+    rewards: Array.isArray(s.rewards) ? s.rewards.filter(r => r && r.id) : [],
+    pomoSessions: validEvents(s.pomoSessions),
+    // v1.7 new collections
+    ideas: validEvents(s.ideas).filter(i => typeof i.text === 'string'),
+    achievements: Array.isArray(s.achievements) ? s.achievements.filter(a => typeof a === 'string') : [],
+    routineLog: validEvents(s.routineLog),
+    companion: {
+      lastMsg: typeof s.companion?.lastMsg === 'string' ? s.companion.lastMsg : null,
+      lastMsgAt: s.companion?.lastMsgAt || null
+    },
+    world: {
+      roomsUnlocked: Array.isArray(s.world?.roomsUnlocked) ? s.world.roomsUnlocked.filter(r => typeof r === 'string') : [],
+      lastCheck: s.world?.lastCheck || null
+    },
+    game: {
+      xp: Number(s.game?.xp) || 0,
+      level: Math.max(1, Number(s.game?.level) || 1),
+      hp: Math.max(0, Number(s.game?.hp) || 50),
+      maxHp: Math.max(10, Number(s.game?.maxHp) || 50),
+      tokens: Math.max(0, Number(s.game?.tokens) || 0),
+      totalXP: Number(s.game?.totalXP) || 0,
+      lastDailyReset: s.game?.lastDailyReset || null,
+      lastHpDmgDay: s.game?.lastHpDmgDay || null,
+      dmgToday: Math.max(0, Number(s.game?.dmgToday) || 0)
+    },
+    lastBackup: s.lastBackup || null
+  };
+}
+
+function save() {
+  try { localStorage.setItem(STORAGE_KEY, JSON.stringify(state)); }
+  catch (e) { toast('Errore salvataggio: ' + e.message, 'error'); }
+}
+
+// ============================================================
+// UTILS
+// ============================================================
+function uid() { return Date.now().toString(36) + Math.random().toString(36).slice(2, 7); }
+// v1.7.1 FIX: safe day-key extractor. Returns YYYY-MM-DD from any ts (string, number, Date).
+// Defensive: anche se migrate fallisse a normalizzare, qui non si crasha.
+function dayKey(ts) {
+  if (typeof ts === 'string') return ts.slice(0, 10);
+  try { const d = new Date(ts); return isNaN(d.getTime()) ? '' : d.toISOString().slice(0, 10); }
+  catch { return ''; }
+}
+
+// v1.8.0: CONTINUITY MAP — calcola attività per giorno, no penalty no reset
+// Inclusivo: qualunque entry conta (note, mood, sat, tilt, hack, powerup, pomo, idea, routine, task chiuso)
+function computeContinuity(st) {
+  const counts = new Map(); // 'YYYY-MM-DD' -> int
+  const bump = (k) => { if (k) counts.set(k, (counts.get(k) || 0) + 1); };
+  ['notes','moods','tilts','hacks','powerups','saturations','pomoSessions','ideas','routineLog'].forEach(b => {
+    (st[b] || []).forEach(e => bump(dayKey(e && e.ts)));
+  });
+  (st.tasks || []).forEach(t => { if (t && t.done && t.doneAt) bump(dayKey(t.doneAt)); });
+  // current day key (localtime)
+  const todayK = todayKey();
+  const todayDate = new Date(todayK + 'T00:00:00');
+  const dayMs = 86400000;
+  const keyOf = (d) => `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;
+  // last 7 / last 30
+  let last7 = 0, last30 = 0;
+  for (let i = 0; i < 30; i++) {
+    const d = new Date(todayDate.getTime() - i * dayMs);
+    if (counts.has(keyOf(d))) { last30++; if (i < 7) last7++; }
+  }
+  // current run (starts today and goes back; if today is empty, starts yesterday — soft)
+  let currentRun = 0;
+  let probe = new Date(todayDate);
+  // se oggi è vuoto, parto da ieri (più gentile: non punisce la giornata in corso)
+  if (!counts.has(keyOf(probe))) probe = new Date(probe.getTime() - dayMs);
+  while (counts.has(keyOf(probe))) { currentRun++; probe = new Date(probe.getTime() - dayMs); }
+  // longest run (su tutto lo storico)
+  const sortedKeys = [...counts.keys()].sort();
+  let longestRun = 0, longestStart = null, longestEnd = null;
+  let curLen = 0, curStart = null, prevTs = -Infinity;
+  for (const k of sortedKeys) {
+    const t = new Date(k + 'T00:00:00').getTime();
+    if (t - prevTs === dayMs) { curLen++; }
+    else { curLen = 1; curStart = k; }
+    if (curLen > longestRun) { longestRun = curLen; longestStart = curStart; longestEnd = k; }
+    prevTs = t;
+  }
+  // grid 5 weeks × 7 days (lun→dom), ultima riga = settimana corrente
+  const todayDayISO = ((todayDate.getDay() + 6) % 7); // 0=lun, 6=dom
+  const mondayThisWeek = new Date(todayDate.getTime() - todayDayISO * dayMs);
+  const rows = [];
+  for (let w = 4; w >= 0; w--) {
+    const monday = new Date(mondayThisWeek.getTime() - w * 7 * dayMs);
+    const row = [];
+    for (let dc = 0; dc < 7; dc++) {
+      const d = new Date(monday.getTime() + dc * dayMs);
+      const k = keyOf(d);
+      const cnt = counts.get(k) || 0;
+      row.push({
+        date: k,
+        dateShort: `${String(d.getDate()).padStart(2,'0')}/${String(d.getMonth()+1).padStart(2,'0')}`,
+        count: cnt,
+        lv: cnt === 0 ? 0 : cnt === 1 ? 1 : cnt <= 3 ? 2 : 3,
+        isToday: d.getTime() === todayDate.getTime(),
+        isFuture: d.getTime() > todayDate.getTime()
+      });
+    }
+    rows.push(row);
+  }
+  return { last7, last30, totalActive: counts.size, currentRun, longestRun, longestStart, longestEnd, rows };
+}
+
+function renderContinuityHTML() {
+  const c = computeContinuity(state);
+  let html = '<div class="continuity"><div class="continuity-title">▸ Continuity Map · 5 settimane</div>';
+  html += '<div class="continuity-grid">';
+  html += '<div class="continuity-row-label"></div>';
+  ['L','M','M','G','V','S','D'].forEach(d => html += `<div class="continuity-head">${d}</div>`);
+  c.rows.forEach((row, ri) => {
+    const label = ri === c.rows.length - 1 ? 'ORA' : `-${c.rows.length - 1 - ri}w`;
+    html += `<div class="continuity-row-label">${label}</div>`;
+    row.forEach(cell => {
+      const cls = ['continuity-cell'];
+      if (cell.isToday) cls.push('today');
+      if (cell.isFuture) cls.push('future');
+      const onclick = cell.isFuture ? '' : `onclick="continuityTap('${cell.dateShort}',${cell.count})"`;
+      html += `<div class="${cls.join(' ')}" data-lv="${cell.lv}" title="${cell.dateShort}: ${cell.count} entry" ${onclick}></div>`;
+    });
+  });
+  html += '</div>';
+  html += `<div class="continuity-stats">
+    <div class="continuity-stat"><div class="continuity-stat-label">Ultimi 7g</div><div class="continuity-stat-value">${c.last7}/7</div></div>
+    <div class="continuity-stat"><div class="continuity-stat-label">Ultimi 30g</div><div class="continuity-stat-value">${c.last30}/30</div></div>
+    <div class="continuity-stat"><div class="continuity-stat-label">Serie ora</div><div class="continuity-stat-value">${c.currentRun}g</div></div>
+  </div>`;
+  if (c.longestRun > 1 && c.longestStart && c.longestEnd) {
+    html += `<div class="continuity-record">serie più lunga: ${c.longestRun}g (${fmtShortDate(c.longestStart)} → ${fmtShortDate(c.longestEnd)})</div>`;
+  } else {
+    html += `<div class="continuity-record empty">${c.totalActive} giorni attivi totali · niente confronto, niente penalità</div>`;
+  }
+  html += '<div class="continuity-help">Conta qualunque entry: nota, mood, tilt, hack, power-up, pomo. Saltare un giorno non resetta nulla, è solo informazione.</div>';
+  html += '</div>';
+  return html;
+}
+
+function continuityTap(dateShort, count) {
+  FX.continuity_tap();
+  VIBE.continuity_tap();
+  toast(`${dateShort} · ${count} ${count === 1 ? 'entry' : 'entry'}`, count > 0 ? 'success' : '');
+}
+
+function fmtDate(iso) {
+  const d = new Date(iso);
+  return `${String(d.getDate()).padStart(2,'0')}/${String(d.getMonth()+1).padStart(2,'0')}/${d.getFullYear()}, ${String(d.getHours()).padStart(2,'0')}:${String(d.getMinutes()).padStart(2,'0')}`;
+}
+function fmtShortDate(iso) { const d = new Date(iso); return `${String(d.getDate()).padStart(2,'0')}/${String(d.getMonth()+1).padStart(2,'0')}`; }
+function daysAgo(iso) {
+  if (!iso) return Infinity;
+  const t = new Date(iso).getTime();
+  if (isNaN(t)) return Infinity;
+  const ms = Date.now() - t;
+  return ms < 0 ? 0 : Math.floor(ms / 86400000);
+}
+function withinDays(iso, days) { return daysAgo(iso) < days; }
+function parseExamDate(s) {
+  if (!s || typeof s !== 'string') return null;
+  const p = s.split('-').map(Number);
+  if (p.length !== 3 || p.some(isNaN)) return null;
+  return new Date(p[0], p[1]-1, p[2]);
+}
+function daysToExam(s) {
+  const d = parseExamDate(s); if (!d) return null;
+  const n = new Date(), sot = new Date(n.getFullYear(), n.getMonth(), n.getDate());
+  return Math.round((d - sot) / 86400000);
+}
+function todayKey() { const d = new Date(); return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`; }
+function escapeHtml(s) { return String(s ?? '').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&#39;'); }
+function escapeAttr(s) { return String(s).replace(/'/g,"\\'").replace(/"/g,'&quot;'); }
+
+function toast(msg, type = '') {
+  const t = document.createElement('div'); t.className = 'toast ' + type; t.textContent = msg;
+  document.getElementById('toastHost').appendChild(t);
+  setTimeout(() => t.remove(), 2200);
+}
+
+function getTier(level) { return TIERS.find(t => level >= t.min && level <= t.max) || TIERS[TIERS.length-1]; }
+function xpForNext(level) { return level * 100; }
+
+// ============================================================
+// FX LAYER (v1.6.1) - sensory feedback for ACTION zone only
+// Firewall: NEVER called from LOG zone (note/mood/sat/tilt/hack)
+// ============================================================
+// Defensive accessor: returns safe defaults if state.settings.fx is missing/corrupt
+function _fxOn(field) {
+  try {
+    const fx = state && state.settings && state.settings.fx;
+    if (!fx) return true; // default to ON if not yet initialized
+    if (field === 'anim') return fx.anim || 'standard';
+    return !!fx[field];
+  } catch (e) { return true; }
+}
+
+let _audioCtx = null;
+function getAudioCtx() {
+  if (_audioCtx === false) return null;
+  if (_audioCtx) return _audioCtx;
+  try {
+    const AC = window.AudioContext || window.webkitAudioContext;
+    if (!AC) { _audioCtx = false; return null; }
+    _audioCtx = new AC();
+  } catch (e) { _audioCtx = false; return null; }
+  return _audioCtx;
+}
+function _tone(freq, dur, opts) {
+  const ctx = getAudioCtx(); if (!ctx) return;
+  if (ctx.state === 'suspended') { try { ctx.resume(); } catch(e){} }
+  try {
+    const osc = ctx.createOscillator();
+    const gain = ctx.createGain();
+    osc.connect(gain); gain.connect(ctx.destination);
+    osc.type = (opts && opts.type) || 'sine';
+    const t0 = ctx.currentTime;
+    osc.frequency.setValueAtTime(freq, t0);
+    if (opts && opts.freqEnd) {
+      osc.frequency.exponentialRampToValueAtTime(Math.max(1, opts.freqEnd), t0 + dur);
+    }
+    const vol = (opts && opts.vol != null) ? opts.vol : 0.08;
+    gain.gain.setValueAtTime(0.0001, t0);
+    gain.gain.exponentialRampToValueAtTime(vol, t0 + 0.01);
+    gain.gain.exponentialRampToValueAtTime(0.0001, t0 + dur);
+    osc.start(t0);
+    osc.stop(t0 + dur + 0.05);
+  } catch (e) { /* silent */ }
+}
+function _seq(notes) {
+  const ctx = getAudioCtx(); if (!ctx) return;
+  let delay = 0;
+  notes.forEach(n => {
+    setTimeout(() => _tone(n.freq, n.dur, n), delay * 1000);
+    delay += n.dur + (n.gap || 0.04);
+  });
+}
+
+const FX = {
+  habit_plus()    { if (!_fxOn('sound')) return; _tone(800, 0.08, {type:'sine'}); },
+  habit_minus()   { if (!_fxOn('sound')) return; _tone(280, 0.12, {type:'sawtooth', vol:0.06}); },
+  daily_done()    { if (!_fxOn('sound')) return; _seq([{freq:600,dur:0.08,type:'sine'},{freq:900,dur:0.14,type:'sine'}]); },
+  task_done()     { if (!_fxOn('sound')) return; _seq([{freq:700,dur:0.07,type:'sine'},{freq:1000,dur:0.11,type:'sine'}]); },
+  levelup()       { if (!_fxOn('sound')) return; _seq([{freq:600,dur:0.1,type:'triangle'},{freq:800,dur:0.1,type:'triangle'},{freq:1200,dur:0.12,type:'triangle'},{freq:1600,dur:0.22,type:'triangle',vol:0.1}]); },
+  pomo_focus_end(){ if (!_fxOn('sound')) return; _tone(880, 0.45, {type:'triangle', vol:0.12}); setTimeout(()=>{ if(_fxOn('sound')) _tone(880, 0.45, {type:'triangle', vol:0.10}); }, 600); },
+  pomo_break_end(){ if (!_fxOn('sound')) return; _tone(660, 0.35, {type:'triangle', vol:0.10}); },
+  continuity_tap(){ if (!_fxOn('sound')) return; _tone(550, 0.04, {type:'sine', vol:0.04}); },
+};
+
+function vibe(pattern) {
+  if (!_fxOn('vibrate')) return;
+  if (!navigator.vibrate) return; // iOS Safari: no-op
+  try { navigator.vibrate(pattern); } catch(e) {}
+}
+const VIBE = {
+  tap()             { vibe(30); },
+  tap_minus()       { vibe([40, 30, 40]); },
+  daily_done()      { vibe([30, 40, 60]); },
+  task_done()       { vibe([40, 30, 50]); },
+  levelup()         { vibe([60, 50, 60, 50, 80]); },
+  pomo_focus_end()  { vibe([100, 80, 100, 80, 120]); },
+  pomo_break_end()  { vibe(180); },
+  continuity_tap()  { vibe(12); },
+};
+
+// Pulse animation on tap (CSS-driven, respects anim setting)
+function pulseEl(el) {
+  if (!el || _fxOn('anim') === 'off') return;
+  el.classList.remove('fx-pulse');
+  // force reflow to restart animation
+  void el.offsetWidth;
+  el.classList.add('fx-pulse');
+  setTimeout(() => el && el.classList.remove('fx-pulse'), 400);
+}
+
+// Bootstrap: resume AudioContext on first user interaction (iOS/Safari requirement)
+function _initAudioOnFirstTap() {
+  const ctx = getAudioCtx();
+  if (ctx && ctx.state === 'suspended') { try { ctx.resume(); } catch(e){} }
+  document.removeEventListener('touchstart', _initAudioOnFirstTap, true);
+  document.removeEventListener('click', _initAudioOnFirstTap, true);
+}
+document.addEventListener('touchstart', _initAudioOnFirstTap, true);
+document.addEventListener('click', _initAudioOnFirstTap, true);
+
+// Apply animation mode to body for CSS-level control
+function applyAnimMode() {
+  const mode = _fxOn('anim') || 'standard';
+  document.body.setAttribute('data-anim', mode);
+}
+
+// ============================================================
+// GAMIFICATION (operates on ACTIONS only - never on reflection)
+// ============================================================
+function gainXP(amount) {
+  amount = Math.max(0, Math.round(Number(amount) || 0));
+  if (!amount) return;
+  // v1.6: in exam mode, do not increase XP/level/tokens at all
+  if (state.settings.examMode) {
+    toast('✓', 'success');
+    save();
+    return;
+  }
+  state.game.xp += amount;
+  state.game.totalXP += amount;
+  state.game.tokens += Math.floor(amount / 10);
+  let leveledUp = false;
+  while (state.game.xp >= xpForNext(state.game.level)) {
+    state.game.xp -= xpForNext(state.game.level);
+    state.game.level++;
+    leveledUp = true;
+  }
+  if (leveledUp) {
+    state.game.maxHp = 50 + (state.game.level - 1) * 5;
+    // v1.6: do NOT auto-heal - keep HP as informational
+    FX.levelup(); VIBE.levelup();
+    showLevelUp();
+  } else {
+    toast(`+${amount} XP`, 'xp');
+  }
+  save(); renderAll();
+}
+
+function loseXP(amount) {
+  amount = Math.max(0, Math.round(Number(amount) || 0));
+  if (!amount) return;
+  if (state.settings.examMode) { save(); return; }
+  state.game.xp = Math.max(0, state.game.xp - amount);
+  toast(`-${amount} XP`, 'error');
+  save(); renderAll();
+}
+
+function loseHP(amount) {
+  // v1.7: HP soft mode (with safety rails). If not enabled or Quiet Mode, no-op.
+  if (
