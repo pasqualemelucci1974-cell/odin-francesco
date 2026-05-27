@@ -647,6 +647,29 @@ body[data-anim="reduced"] .continuity{animation:none}
           <div style="margin-top:8px"><button class="btn btn-magenta btn-block" onclick="addTask()">Crea mission</button></div>
         </div>
 
+        <!-- v1.8.5: Edit mission modal -->
+        <div id="editTaskModal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.85);z-index:9999;overflow-y:auto;padding:20px">
+          <div style="max-width:520px;margin:30px auto;background:var(--bg);border:2px solid var(--magenta);border-radius:8px;padding:16px;box-shadow:0 0 30px rgba(255,0,255,0.3)">
+            <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;border-bottom:1px solid var(--magenta);padding-bottom:8px">
+              <div style="color:var(--magenta);font-weight:bold;font-size:14px">✏️ MODIFICA MISSION</div>
+              <button onclick="closeEditTaskModal()" style="background:transparent;border:1px solid var(--magenta);color:var(--magenta);padding:4px 10px;cursor:pointer;border-radius:4px">×</button>
+            </div>
+            <label class="lab">Titolo mission</label>
+            <input type="text" class="input" id="editTaskTitle">
+            <div class="row">
+              <div><label class="lab">Lista</label><select class="select" id="editTaskList"></select></div>
+              <div><label class="lab">Priorità</label><select class="select" id="editTaskPriority"><option value="1">Bassa</option><option value="2">Media</option><option value="3">Alta</option></select></div>
+            </div>
+            <div class="row">
+              <div><label class="lab">Scadenza</label><input type="date" class="input" id="editTaskDue"></div>
+              <div><label class="lab">Difficoltà</label><select class="select" id="editTaskDiff"><option value="1">Easy (+5 XP)</option><option value="2">Med (+10 XP)</option><option value="3">Hard (+20 XP)</option></select></div>
+            </div>
+            <div class="row full"><div><label class="lab">Tag (separati da virgola)</label><input type="text" class="input" id="editTaskTags"></div></div>
+            <div style="margin-top:12px"><button class="btn btn-magenta btn-block" onclick="submitEditTask()">Salva modifiche</button></div>
+            <div class="help" style="margin-top:8px;font-size:11px">Dopo il salvataggio O.D.I.N. ti chiederà se vuoi continuare la mission dallo stato attuale o ricominciare da capo con i nuovi parametri.</div>
+          </div>
+        </div>
+
         <label class="lab" style="margin-top:6px">Filtra per lista</label>
         <div class="lists-grid" id="listsFilter"></div>
 
@@ -916,7 +939,7 @@ body[data-anim="reduced"] .continuity{animation:none}
 // O.D.I.N. v1.5 - TickTick + Habitica integration
 // ============================================================
 const STORAGE_KEY = 'odin_v12_francesco';
-const VERSION = '1.8.4';
+const VERSION = '1.8.5';
 
 const DEFAULT_POWERUPS = ['🚶 Camminata','🚲 Bici','🎵 Musica chill','🧘 Respiro 5min','🛁 Doccia','☕ Pausa caffè','🛏️ Power nap','🌳 Aria fresca','🥊 Kickboxen','📺 Episodio serie','💊 Magnesio + relax','📞 Chiamata amico'];
 
@@ -2020,6 +2043,143 @@ function completeTask(id, btn) {
   }
 }
 function deleteTask(id) { if (!confirm('Eliminare task?')) return; state.tasks = state.tasks.filter(t => t.id !== id); save(); renderAll(); }
+
+// v1.8.5: Edit mission flow (Francesco's request)
+// Mantiene la possibilità di modificare una mission in corso senza doverla cancellare.
+// Dopo la modifica, chiede se mantenere lo stato attuale o ricominciare da capo.
+let _editingTaskId = null;
+
+function openEditTask(id) {
+  const t = state.tasks.find(x => x.id === id);
+  if (!t) return toast('Mission non trovata', 'error');
+  if (t.done) return toast('Mission già completata · non modificabile', 'error');
+  _editingTaskId = id;
+  // Popola dropdown lista
+  const listSel = document.getElementById('editTaskList');
+  listSel.innerHTML = '';
+  state.settings.lists.forEach(l => {
+    const opt = document.createElement('option');
+    opt.value = l.id; opt.textContent = (l.emoji || '') + ' ' + l.name;
+    if (l.id === t.listId) opt.selected = true;
+    listSel.appendChild(opt);
+  });
+  // Popola tutti gli altri campi
+  document.getElementById('editTaskTitle').value = t.title || '';
+  document.getElementById('editTaskPriority').value = String(t.priority || 2);
+  document.getElementById('editTaskDue').value = t.due || '';
+  document.getElementById('editTaskDiff').value = String(t.difficulty || 2);
+  document.getElementById('editTaskTags').value = (t.tags || []).join(', ');
+  document.getElementById('editTaskModal').style.display = 'block';
+}
+
+function closeEditTaskModal() {
+  document.getElementById('editTaskModal').style.display = 'none';
+  _editingTaskId = null;
+}
+
+function submitEditTask() {
+  if (!_editingTaskId) return closeEditTaskModal();
+  const t = state.tasks.find(x => x.id === _editingTaskId);
+  if (!t) { toast('Mission non trovata', 'error'); return closeEditTaskModal(); }
+  const newTitle = document.getElementById('editTaskTitle').value.trim();
+  if (!newTitle) return toast('Titolo richiesto', 'error');
+  // Stash dei nuovi valori in attesa della scelta continua/ricomincia
+  const pending = {
+    title: newTitle,
+    listId: document.getElementById('editTaskList').value,
+    priority: parseInt(document.getElementById('editTaskPriority').value),
+    due: document.getElementById('editTaskDue').value || null,
+    difficulty: parseInt(document.getElementById('editTaskDiff').value),
+    tags: document.getElementById('editTaskTags').value.split(',').map(x => x.trim()).filter(Boolean)
+  };
+  // Salva pending sul task come campo temporaneo
+  t._pendingEdit = pending;
+  // Chiudi modal di edit, mostra il dialog di scelta
+  document.getElementById('editTaskModal').style.display = 'none';
+  showEditChoiceDialog();
+}
+
+function showEditChoiceDialog() {
+  // Riutilizzo il modal: lo trasformo in dialog di scelta
+  const modal = document.getElementById('editTaskModal');
+  const inner = modal.firstElementChild;
+  inner.innerHTML = `
+    <div style="color:var(--magenta);font-weight:bold;font-size:14px;border-bottom:1px solid var(--magenta);padding-bottom:8px;margin-bottom:12px">▸ MISSION AGGIORNATA</div>
+    <div style="color:var(--text);font-size:13px;line-height:1.5;margin-bottom:16px">
+      Vuoi continuare la mission dallo stato attuale, oppure ricominciare da capo con i nuovi parametri?
+    </div>
+    <div style="display:flex;gap:8px;flex-direction:column">
+      <button class="btn btn-cyan btn-block" onclick="applyEditTask(false)">▶ CONTINUA dallo stato attuale</button>
+      <button class="btn btn-magenta btn-block" onclick="applyEditTask(true)">↺ RICOMINCIA da capo</button>
+      <button class="btn btn-ghost btn-block" onclick="cancelEditTask()" style="margin-top:4px">Annulla modifiche</button>
+    </div>
+    <div class="help" style="margin-top:10px;font-size:11px;color:var(--text-dim)">
+      • CONTINUA: applica solo le modifiche, mantiene la data di creazione e gli XP già accumulati.<br>
+      • RICOMINCIA: la mission rinasce come nuova con i parametri aggiornati. Data di creazione resettata.
+    </div>
+  `;
+  modal.style.display = 'block';
+}
+
+function applyEditTask(restart) {
+  const t = state.tasks.find(x => x.id === _editingTaskId);
+  if (!t || !t._pendingEdit) { return cancelEditTask(); }
+  const p = t._pendingEdit;
+  t.title = p.title;
+  t.listId = p.listId;
+  t.priority = p.priority;
+  t.due = p.due;
+  t.difficulty = p.difficulty;
+  t.tags = p.tags;
+  if (restart) {
+    t.ts = new Date().toISOString();
+    t.done = false;
+    t.doneAt = null;
+    t.xpAwarded = false;
+  }
+  delete t._pendingEdit;
+  save();
+  toast(restart ? 'Mission ricominciata' : 'Mission aggiornata', 'success');
+  // Ripristina il contenuto del modal per i prossimi utilizzi
+  resetEditModalContent();
+  document.getElementById('editTaskModal').style.display = 'none';
+  _editingTaskId = null;
+  renderAll();
+}
+
+function cancelEditTask() {
+  const t = state.tasks.find(x => x.id === _editingTaskId);
+  if (t) delete t._pendingEdit;
+  resetEditModalContent();
+  document.getElementById('editTaskModal').style.display = 'none';
+  _editingTaskId = null;
+  toast('Modifiche annullate', 'info');
+}
+
+function resetEditModalContent() {
+  // Riporta il modal al form originale (necessario perché showEditChoiceDialog lo sostituisce)
+  const modal = document.getElementById('editTaskModal');
+  const inner = modal.firstElementChild;
+  inner.innerHTML = `
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;border-bottom:1px solid var(--magenta);padding-bottom:8px">
+      <div style="color:var(--magenta);font-weight:bold;font-size:14px">✏️ MODIFICA MISSION</div>
+      <button onclick="closeEditTaskModal()" style="background:transparent;border:1px solid var(--magenta);color:var(--magenta);padding:4px 10px;cursor:pointer;border-radius:4px">×</button>
+    </div>
+    <label class="lab">Titolo mission</label>
+    <input type="text" class="input" id="editTaskTitle">
+    <div class="row">
+      <div><label class="lab">Lista</label><select class="select" id="editTaskList"></select></div>
+      <div><label class="lab">Priorità</label><select class="select" id="editTaskPriority"><option value="1">Bassa</option><option value="2">Media</option><option value="3">Alta</option></select></div>
+    </div>
+    <div class="row">
+      <div><label class="lab">Scadenza</label><input type="date" class="input" id="editTaskDue"></div>
+      <div><label class="lab">Difficoltà</label><select class="select" id="editTaskDiff"><option value="1">Easy (+5 XP)</option><option value="2">Med (+10 XP)</option><option value="3">Hard (+20 XP)</option></select></div>
+    </div>
+    <div class="row full"><div><label class="lab">Tag (separati da virgola)</label><input type="text" class="input" id="editTaskTags"></div></div>
+    <div style="margin-top:12px"><button class="btn btn-magenta btn-block" onclick="submitEditTask()">Salva modifiche</button></div>
+    <div class="help" style="margin-top:8px;font-size:11px">Dopo il salvataggio O.D.I.N. ti chiederà se vuoi continuare la mission dallo stato attuale o ricominciare da capo con i nuovi parametri.</div>
+  `;
+}
 function setListFilter(id) { activeListFilter = id; renderTasks(); }
 function renderListsFilter() {
   const host = document.getElementById('listsFilter');
@@ -2062,7 +2222,7 @@ function renderTasks() {
           ${(t.tags || []).map(tag => `<span class="todo-tag">#${escapeHtml(tag)}</span>`).join('')}
         </div>
       </div>
-      <div class="todo-actions"><button onclick="deleteTask('${t.id}')">×</button></div>
+      <div class="todo-actions">${!t.done ? `<button onclick="openEditTask('${t.id}')" title="Modifica mission" style="margin-right:4px">✏️</button>` : ''}<button onclick="deleteTask('${t.id}')">×</button></div>
     </div>`;
   }).join('');
 }
