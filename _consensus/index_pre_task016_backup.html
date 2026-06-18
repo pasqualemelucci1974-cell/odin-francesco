@@ -650,7 +650,7 @@ body[data-anim="reduced"] .continuity{animation:none}
             <div><label class="lab">Priorità</label><select class="select" id="taskPriority"><option value="1">Bassa</option><option value="2" selected>Media</option><option value="3">Alta</option></select></div>
           </div>
           <div class="row">
-            <div><label class="lab">Scadenza <span style="opacity:.55;font-size:10px">(vuoto = prima o poi)</span></label><input type="date" class="input" id="taskDue"></div>
+            <div><label class="lab">Scadenza</label><input type="date" class="input" id="taskDue"></div>
             <div><label class="lab">Difficoltà</label><select class="select" id="taskDiff"><option value="1">Easy (+5 XP)</option><option value="2" selected>Med (+10 XP)</option><option value="3">Hard (+20 XP)</option></select></div>
           </div>
           <div class="row full"><div><label class="lab">Tag (separati da virgola)</label><input type="text" class="input" id="taskTags" placeholder="esami, matematica"></div></div>
@@ -688,7 +688,6 @@ body[data-anim="reduced"] .continuity{animation:none}
           <button class="active" data-view="today">Oggi</button>
           <button data-view="week">Settimana</button>
           <button data-view="all">Tutte</button>
-          <button data-view="someday">Prima o poi</button>
           <button data-view="done">Fatte</button>
         </div>
         <div id="tasksList"></div>
@@ -1845,7 +1844,7 @@ function renderStatusGrid() {
 function renderTodayOps() {
   const host = document.getElementById('todayOps');
   const dailiesToday = state.dailies.filter(d => shouldRunToday(d, todayKey()));
-  const tasksToday = state.tasks.filter(t => !t.done && t.due && t.due <= todayKey());
+  const tasksToday = state.tasks.filter(t => !t.done && (!t.due || t.due === todayKey() || t.due < todayKey()));
   if (!dailiesToday.length && !tasksToday.length) { host.innerHTML = '<div class="empty">Niente in programma per oggi.</div>'; return; }
   let html = '';
   if (dailiesToday.length) {
@@ -2292,9 +2291,8 @@ function renderTasks() {
   const weekEndKey = weekEnd.toISOString().slice(0, 10);
   let filtered = state.tasks.slice();
   if (activeListFilter !== 'all') filtered = filtered.filter(t => t.listId === activeListFilter);
-  if (activeTaskView === 'today') filtered = filtered.filter(t => !t.done && t.due && t.due <= today);
-  else if (activeTaskView === 'week') filtered = filtered.filter(t => !t.done && t.due && t.due <= weekEndKey);
-  else if (activeTaskView === 'someday') filtered = filtered.filter(t => !t.done && !t.due);
+  if (activeTaskView === 'today') filtered = filtered.filter(t => !t.done && (!t.due || t.due <= today));
+  else if (activeTaskView === 'week') filtered = filtered.filter(t => !t.done && (!t.due || t.due <= weekEndKey));
   else if (activeTaskView === 'done') filtered = filtered.filter(t => t.done);
   else filtered = filtered.filter(t => !t.done);
   filtered.sort((a, b) => {
@@ -2723,15 +2721,7 @@ function deleteList(id) {
 function renderListsManager() {
   document.getElementById('listsManager').innerHTML = state.settings.lists.map(l => `
     <div class="todo"><div class="todo-content"><div class="todo-name">${l.emoji || '📁'} ${escapeHtml(l.name)}</div></div>
-    <div class="todo-actions"><button onclick="renameList('${l.id}')" title="Rinomina">✏️</button>${l.id !== 'inbox' ? `<button onclick="deleteList('${l.id}')" title="Elimina">×</button>` : ''}</div></div>`).join('');
-}
-function renameList(id) {
-  const l = state.settings.lists.find(x => x.id === id); if (!l) return;
-  const n = (prompt('Nuovo nome lista:', l.name) || '').trim();
-  if (!n) return;
-  if (state.settings.lists.some(x => x.id !== id && (x.name || '').toLowerCase() === n.toLowerCase())) return toast('Nome già usato', 'error');
-  l.name = n;
-  save(); renderListsManager(); renderAll();
+    ${l.id !== 'inbox' ? `<div class="todo-actions"><button onclick="deleteList('${l.id}')">×</button></div>` : ''}</div>`).join('');
 }
 
 function renderCustomPowerups() {
