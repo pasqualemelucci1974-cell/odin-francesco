@@ -1004,7 +1004,72 @@ body[data-anim="reduced"] .continuity{animation:none}
 // O.D.I.N. v1.5 - TickTick + Habitica integration
 // ============================================================
 const STORAGE_KEY = 'odin_v12_francesco';
-const VERSION = '1.9';
+const VERSION = '1.9.1';
+
+// v1.9.1: PUSH NOTIFICATIONS (Francesco's request)
+// Unico dato che lascia il dispositivo: endpoint push + titolo task + orario scadenza.
+// Nessun XP, nota, mood o dato personale viene sincronizzato.
+const SUPA_URL = 'https://zpcoiiprhtdwzjezrdaj.supabase.co';
+const SUPA_ANON = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InpwY29paXByaHRkd3pqZXpyZGFqIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODI1MzIxMDMsImV4cCI6MjA5ODEwODEwM30.6dg3_U49dTf4jhRwN-gkjqtWkRJu93uUyPt1lvDmNig';
+const VAPID_PUBLIC = 'BM_PEqcSnkfh-kEXNaLjHdtll0R3z8j_OopCJE-zqc-eT66hjmtJgV0Ee9-aOF01_2fnqEI6bR2ZB-AxqRYdqcw';
+
+function urlB64ToUint8Array(base64String) {
+  const padding = '='.repeat((4 - base64String.length % 4) % 4);
+  const base64 = (base64String + padding).replace(/-/g, '+').replace(/_/g, '/');
+  const rawData = atob(base64);
+  const outputArray = new Uint8Array(rawData.length);
+  for (let i = 0; i < rawData.length; ++i) outputArray[i] = rawData.charCodeAt(i);
+  return outputArray;
+}
+
+async function odinEnablePush() {
+  if (!('serviceWorker' in navigator) || !('PushManager' in window)) {
+    toast('Push non supportate da questo browser', 'error'); return false;
+  }
+  try {
+    const reg = await navigator.serviceWorker.register('./sw.js');
+    const perm = await Notification.requestPermission();
+    if (perm !== 'granted') { toast('Permesso notifiche negato', 'error'); return false; }
+    let sub = await reg.pushManager.getSubscription();
+    if (!sub) {
+      sub = await reg.pushManager.subscribe({ userVisibleOnly: true, applicationServerKey: urlB64ToUint8Array(VAPID_PUBLIC) });
+    }
+    const keys = sub.toJSON().keys;
+    const res = await fetch(SUPA_URL + '/rest/v1/odin_devices', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', 'apikey': SUPA_ANON, 'Authorization': 'Bearer ' + SUPA_ANON, 'Prefer': 'return=representation,resolution=merge-duplicates' },
+      body: JSON.stringify({ endpoint: sub.endpoint, p256dh: keys.p256dh, auth: keys.auth })
+    });
+    const data = await res.json();
+    if (Array.isArray(data) && data[0] && data[0].device_id) {
+      state.settings.pushDeviceId = data[0].device_id;
+      state.settings.pushEnabled = true;
+      save();
+      toast('Notifiche push attive', 'success');
+      renderNotifSettings();
+      return true;
+    }
+    toast('Push registrata, verifica in corso', 'success');
+    return true;
+  } catch (e) {
+    toast('Errore attivazione push: ' + e.message, 'error');
+    return false;
+  }
+}
+
+async function odinSyncReminder(title, dueDateStr) {
+  // dueDateStr formato YYYY-MM-DD (solo giorno). Orario promemoria fissato alle 09:00 locali.
+  if (!state.settings.pushDeviceId || !dueDateStr) return;
+  try {
+    const dueAt = new Date(dueDateStr + 'T09:00:00');
+    if (isNaN(dueAt.getTime())) return;
+    await fetch(SUPA_URL + '/rest/v1/odin_reminders', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', 'apikey': SUPA_ANON, 'Authorization': 'Bearer ' + SUPA_ANON },
+      body: JSON.stringify({ device_id: state.settings.pushDeviceId, title: title, due_at: dueAt.toISOString() })
+    });
+  } catch (e) { /* silenzioso: resta comunque il promemoria in-app */ }
+}
 
 const DEFAULT_POWERUPS = ['🚶 Camminata','🚲 Bici','🎵 Musica chill','🧘 Respiro 5min','🛁 Doccia','☕ Pausa caffè','🛏️ Power nap','🌳 Aria fresca','🥊 Kickboxen','📺 Episodio serie','💊 Magnesio + relax','📞 Chiamata amico'];
 
@@ -2120,6 +2185,7 @@ function addTask() {
   state.tasks.push({ id: uid(), ts: new Date().toISOString(), title, listId, priority, due, difficulty, tags, done: false, doneAt: null });
   document.getElementById('taskTitle').value = ''; document.getElementById('taskDue').value = ''; document.getElementById('taskTags').value = '';
   save(); toast('Mission creata', 'success'); toggleTaskForm(); renderAll();
+  if (due) odinSyncReminder(title, due);
 }
 function completeTask(id, btn) {
   const t = state.tasks.find(x => x.id === id); if (!t) return;
@@ -2233,6 +2299,7 @@ function applyEditTask(restart) {
   }
   delete t._pendingEdit;
   save();
+  if (t.due) odinSyncReminder(t.title, t.due);
   toast(restart ? 'Mission ricominciata' : 'Mission aggiornata', 'success');
   // Ripristina il contenuto del modal per i prossimi utilizzi
   resetEditModalContent();
@@ -2901,7 +2968,13 @@ function renderNotifSettings() {
   if (perm === 'denied') s = '<span class="help danger">Permesso negato dal browser. Riattivalo dalle impostazioni del sito, poi premi qui.</span>';
   else if (on) s = '<span class="help good">Notifiche ATTIVE. ODIN ti avvisa quando apri l app se ci sono mission/obiettivi/follow-up/ripassi dovuti.</span>';
   else s = '<span class="help warn">Notifiche non attive.</span>';
-  host.innerHTML = s + `<div style="margin-top:8px"><button class="btn ${on ? 'btn-ghost' : 'btn-green'} btn-block" onclick="requestNotifPermission()">${on ? 'Notifiche attive (ritesta permesso)' : 'Attiva notifiche locali'}</button></div>`;
+  const pushOn = !!(state.settings.pushEnabled && state.settings.pushDeviceId);
+  const pushLine = pushOn
+    ? '<span class="help good">🔔 Notifiche PUSH attive — arrivano anche ad app chiusa.</span>'
+    : '<span class="help">🔔 Notifiche push: avvisano anche con O.D.I.N. completamente chiuso (richiede permesso browser).</span>';
+  host.innerHTML = s + `<div style="margin-top:8px"><button class="btn ${on ? 'btn-ghost' : 'btn-green'} btn-block" onclick="requestNotifPermission()">${on ? 'Notifiche attive (ritesta permesso)' : 'Attiva notifiche locali'}</button></div>`
+    + `<div style="margin-top:10px">${pushLine}</div>`
+    + `<div style="margin-top:8px"><button class="btn ${pushOn ? 'btn-ghost' : 'btn-green'} btn-block" onclick="odinEnablePush()">${pushOn ? 'Push attiva (ritesta)' : 'Attiva notifiche PUSH (ad app chiusa)'}</button></div>`;
 }
 
 // ============================================================
