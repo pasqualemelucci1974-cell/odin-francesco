@@ -309,6 +309,31 @@ label.lab{display:block;font-size:10px;letter-spacing:1.5px;color:var(--txt-dim)
   100%{transform:scale(1)}
 }
 .fx-pulse{animation:fxPulse .35s ease-out}
+
+/* v1.9.2: modalità VIVIDO — restyling grafico, più energia visiva senza toccare la logica */
+@keyframes vividGlitch{
+  0%{transform:translate(0)}
+  20%{transform:translate(-1px,1px)}
+  40%{transform:translate(1px,-1px)}
+  60%{transform:translate(-1px,-1px)}
+  80%{transform:translate(1px,1px)}
+  100%{transform:translate(0)}
+}
+@keyframes vividHue{
+  0%{filter:hue-rotate(0deg)}
+  50%{filter:hue-rotate(25deg)}
+  100%{filter:hue-rotate(0deg)}
+}
+@keyframes vividRingPulse{
+  0%{box-shadow:0 0 0 0 rgba(179,71,255,.55)}
+  70%{box-shadow:0 0 0 12px rgba(179,71,255,0)}
+  100%{box-shadow:0 0 0 0 rgba(179,71,255,0)}
+}
+body[data-anim="vivido"] .fx-pulse{animation:fxPulse .35s ease-out, vividRingPulse .6s ease-out}
+body[data-anim="vivido"] .todo-check.done{animation:fxCheckPop .3s ease-out, vividGlitch .2s ease-out}
+body[data-anim="vivido"] .levelup-content{animation:lvlPulse .5s ease-out, vividHue 1.2s ease-in-out}
+body[data-anim="vivido"] .hdr-title{animation:vividHue 6s ease-in-out infinite}
+body[data-anim="vivido"] .bar-fill{transition:width .5s cubic-bezier(.34,1.56,.64,1)}
 .todo-check.done{animation:fxCheckPop .3s ease-out}
 
 /* Reduced motion: cut decorative animations, keep functional ones */
@@ -514,6 +539,7 @@ body[data-anim="reduced"] .continuity{animation:none}
     <button class="tab" data-tab="log">LOG</button>
     <button class="tab" data-tab="plan">PLAN</button>
     <button class="tab" data-tab="do">DO</button>
+    <button class="tab" data-tab="prog">PROGETTI</button>
     <button class="tab" data-tab="world" id="tabWorld" style="display:none">WORLD</button>
     <button class="tab" data-tab="archive">ARCHIVE</button>
     <button class="tab" data-tab="review">REVIEW</button>
@@ -763,6 +789,21 @@ body[data-anim="reduced"] .continuity{animation:none}
     </div>
   </div>
 
+  <!-- v1.9.2: PROGETTI — stimoli non ripetitivi, vita lavorativa post-esame -->
+  <div class="section" id="sec-prog">
+    <div class="card accent-purple">
+      <div class="card-title"><span class="title-text">🚀 Progetti</span></div>
+      <div class="help" style="margin-bottom:8px">Non missioni ripetitive: cose con un inizio e una fine. Definisci un progetto, spezzalo in tappe, sblocca XP a ogni tappa.</div>
+      <button class="btn btn-purple btn-block" onclick="toggleProjectForm()">+ Nuovo progetto</button>
+      <div id="projectForm" style="display:none;margin-top:10px">
+        <input class="input" id="projTitle" placeholder="Titolo progetto (es. 'Impara Python base')">
+        <textarea class="input" id="projDesc" placeholder="Descrizione breve (opzionale)" style="margin-top:6px;min-height:50px"></textarea>
+        <button class="btn btn-green btn-block" style="margin-top:8px" onclick="addProject()">Crea progetto</button>
+      </div>
+    </div>
+    <div id="projectsList"></div>
+  </div>
+
   <!-- WORLD (v1.7 Secondo Mondo - only visible if enabled) -->
   <div class="section" id="sec-world">
     <div class="world-header">
@@ -850,6 +891,7 @@ body[data-anim="reduced"] .continuity{animation:none}
         <span>✨ Animazioni</span>
         <select id="fxAnim" onchange="setFx('anim', this.value)">
           <option value="standard">Standard</option>
+          <option value="vivido">Vivido (nuovo · più energia)</option>
           <option value="reduced">Ridotte</option>
           <option value="off">Off</option>
         </select>
@@ -1004,7 +1046,7 @@ body[data-anim="reduced"] .continuity{animation:none}
 // O.D.I.N. v1.5 - TickTick + Habitica integration
 // ============================================================
 const STORAGE_KEY = 'odin_v12_francesco';
-const VERSION = '1.9.1';
+const VERSION = '1.9.2';
 
 // v1.9.1: PUSH NOTIFICATIONS (Francesco's request)
 // Unico dato che lascia il dispositivo: endpoint push + titolo task + orario scadenza.
@@ -1245,17 +1287,18 @@ function defaultState() {
       welcomeShown: false,
       fx: { sound: true, vibrate: true, anim: 'standard' },
       // v1.7: NEW
-      phase: 'pre-exam',                            // 'pre-exam' | 'transition' | 'normal'
+      phase: 'normal',                              // v1.9.2: esami finiti, default = vita lavorativa
       secondoMondo: false,                          // toggle Secondo Mondo on/off
       companionName: null,                          // user-set companion name
       hpSoft: { enabled: false, dmgPerMiss: 2, maxDmgPerDay: 6, regenPerLog: 5 },
       planRoutines: [...DEFAULT_ROUTINES],          // daily structure blocks
       v17Shown: false,                               // one-time v1.7 welcome
       v19Shown: false,                               // v1.9: one-time popup novità merge
-      pomoActive: null,                              // v1.8.1: { endAt, mode, startedAt, plannedMin, paused, pausedRemaining }
+      pomoActive: null,
       pomoNotifyOK: false,                           // v1.8.1: user-granted Notification permission
       notifEnabled: false                            // v1.9 (da v1.7): promemoria locali abilitati
     },
+    projects: [],                                    // v1.9.2: PROGETTI — {id, title, desc, createdAt, status, milestones:[{id,title,done,doneAt}]}
     goals: [], notes: [], moods: [], saturations: [], tilts: [], hacks: [], powerups: [],
     tasks: [], habits: [], dailies: [], rewards: [], pomoSessions: [],
     // v1.9 (da v1.7): schede ripasso orale (Leitner) + gate scan promemoria
@@ -1309,7 +1352,13 @@ function migrate(s) {
         anim: ['standard','reduced','off'].includes(s.settings?.fx?.anim) ? s.settings.fx.anim : 'standard'
       },
       // v1.7 fields
-      phase: ['pre-exam','transition','normal'].includes(s.settings?.phase) ? s.settings.phase : 'pre-exam',
+      // v1.9.2: esami finiti — se lo stato salvato era ancora fermo su 'pre-exam', avanza automaticamente
+      // a 'normal' (ora "vita lavorativa"). Se l'utente aveva già scelto esplicitamente 'transition', rispettala.
+      phase: (() => {
+        const saved = s.settings?.phase;
+        if (saved === 'pre-exam') return 'normal';
+        return ['pre-exam','transition','normal'].includes(saved) ? saved : 'normal';
+      })(),
       secondoMondo: !!s.settings?.secondoMondo,
       companionName: typeof s.settings?.companionName === 'string' ? s.settings.companionName : null,
       hpSoft: {
@@ -1353,6 +1402,7 @@ function migrate(s) {
     hacks: validEvents(s.hacks),
     powerups: validEvents(s.powerups),
     tasks: Array.isArray(s.tasks) ? s.tasks.filter(t => t && t.id) : [],
+    projects: Array.isArray(s.projects) ? s.projects.filter(p => p && p.id).map(p => ({ ...p, milestones: Array.isArray(p.milestones) ? p.milestones.filter(m => m && m.id) : [] })) : [],
     habits: Array.isArray(s.habits) ? s.habits.filter(h => h && h.id) : [],
     dailies: Array.isArray(s.dailies) ? s.dailies.filter(d => d && d.id) : [],
     rewards: Array.isArray(s.rewards) ? s.rewards.filter(r => r && r.id) : [],
@@ -2203,6 +2253,109 @@ function completeTask(id, btn) {
   }
 }
 function deleteTask(id) { if (!confirm('Eliminare task?')) return; state.tasks = state.tasks.filter(t => t.id !== id); save(); renderAll(); }
+
+// ============================================================
+// v1.9.2: PROGETTI — stimoli con inizio/fine, non ripetitivi.
+// Diverso dalle mission: qui il valore è nello spezzare un'idea vaga in tappe concrete.
+// ============================================================
+function toggleProjectForm() {
+  const f = document.getElementById('projectForm');
+  f.style.display = f.style.display === 'none' ? 'block' : 'none';
+}
+
+function addProject() {
+  const title = document.getElementById('projTitle').value.trim();
+  if (!title) return toast('Titolo richiesto', 'error');
+  const desc = document.getElementById('projDesc').value.trim();
+  state.projects.push({ id: uid(), title, desc, createdAt: new Date().toISOString(), status: 'active', milestones: [] });
+  document.getElementById('projTitle').value = ''; document.getElementById('projDesc').value = '';
+  toggleProjectForm();
+  save(); toast('Progetto creato', 'success'); renderAll();
+}
+
+function deleteProject(id) {
+  if (!confirm('Eliminare il progetto e tutte le sue tappe?')) return;
+  state.projects = state.projects.filter(p => p.id !== id);
+  save(); renderAll();
+}
+
+function addMilestone(projectId) {
+  const input = document.getElementById('newMilestone_' + projectId);
+  const title = input.value.trim();
+  if (!title) return;
+  const p = state.projects.find(x => x.id === projectId);
+  if (!p) return;
+  p.milestones.push({ id: uid(), title, done: false, doneAt: null });
+  input.value = '';
+  save(); renderAll();
+}
+
+function toggleMilestone(projectId, milestoneId) {
+  const p = state.projects.find(x => x.id === projectId);
+  if (!p) return;
+  const m = p.milestones.find(x => x.id === milestoneId);
+  if (!m) return;
+  m.done = !m.done;
+  m.doneAt = m.done ? new Date().toISOString() : null;
+  if (m.done) {
+    gainXP(15);
+    // Se tutte le tappe sono completate, il progetto è finito: bonus + stato
+    if (p.milestones.length && p.milestones.every(x => x.done) && p.status !== 'completed') {
+      p.status = 'completed';
+      gainXP(50);
+      toast('🏆 Progetto completato: ' + p.title, 'success');
+    }
+  } else if (p.status === 'completed') {
+    p.status = 'active';
+  }
+  save(); renderAll();
+}
+
+function deleteMilestone(projectId, milestoneId) {
+  const p = state.projects.find(x => x.id === projectId);
+  if (!p) return;
+  p.milestones = p.milestones.filter(m => m.id !== milestoneId);
+  save(); renderAll();
+}
+
+function renderProjects() {
+  const host = document.getElementById('projectsList');
+  if (!host) return;
+  if (!state.projects.length) {
+    host.innerHTML = '<div class="help" style="padding:10px 4px">Nessun progetto ancora. Un progetto è qualcosa che vuoi imparare o costruire — non una routine.</div>';
+    return;
+  }
+  const sorted = [...state.projects].sort((a, b) => {
+    if (a.status === 'completed' && b.status !== 'completed') return 1;
+    if (a.status !== 'completed' && b.status === 'completed') return -1;
+    return new Date(b.createdAt) - new Date(a.createdAt);
+  });
+  host.innerHTML = sorted.map(p => {
+    const total = p.milestones.length;
+    const done = p.milestones.filter(m => m.done).length;
+    const pct = total ? Math.round((done / total) * 100) : 0;
+    const milestonesHtml = p.milestones.map(m => `
+      <div class="routine-item ${m.done ? 'done' : ''}" style="cursor:pointer" onclick="toggleMilestone('${p.id}','${m.id}')">
+        <span class="routine-check ${m.done ? 'done' : ''}">${m.done ? '✓' : ''}</span>
+        <span class="routine-text">${escapeHtml(m.title)}</span>
+        <button class="btn btn-sm btn-ghost" onclick="event.stopPropagation(); deleteMilestone('${p.id}','${m.id}')" title="elimina tappa">×</button>
+      </div>`).join('');
+    return `
+      <div class="card ${p.status === 'completed' ? 'accent-green' : 'accent-purple'}" style="margin-bottom:12px">
+        <div class="card-title">
+          <span class="title-text">${p.status === 'completed' ? '🏆 ' : ''}${escapeHtml(p.title)}</span>
+          <div class="title-actions"><button class="btn btn-sm btn-ghost" onclick="deleteProject('${p.id}')">elimina</button></div>
+        </div>
+        ${p.desc ? `<div class="help" style="margin-bottom:8px">${escapeHtml(p.desc)}</div>` : ''}
+        ${total ? `<div class="bar" style="margin-bottom:8px"><div class="bar-fill xp" style="width:${pct}%"></div></div><div class="help">${done}/${total} tappe · ${pct}%</div>` : ''}
+        <div style="margin-top:8px">${milestonesHtml}</div>
+        <div class="row" style="margin-top:8px">
+          <input class="input" id="newMilestone_${p.id}" placeholder="Nuova tappa..." onkeydown="if(event.key==='Enter') addMilestone('${p.id}')">
+          <button class="btn btn-sm btn-green" onclick="addMilestone('${p.id}')">+</button>
+        </div>
+      </div>`;
+  }).join('');
+}
 
 // v1.8.5: Edit mission flow (Francesco's request)
 // Mantiene la possibilità di modificare una mission in corso senza doverla cancellare.
@@ -3528,7 +3681,7 @@ function renderPhaseBanner() {
   const labels = {
     'pre-exam': 'FASE: PRE-ESAME · alta priorità riflessione',
     'transition': 'FASE: TRANSIZIONE · esami chiusi, nuova struttura',
-    'normal': 'FASE: NORMALE · sistema in mantenimento'
+    'normal': 'FASE: VITA LAVORATIVA · priorità su lavoro e progetti personali'
   };
   host.innerHTML = `<div class="phase-banner ${phase}"><span class="ph-dot"></span> ${labels[phase]}</div>`;
 }
@@ -4015,6 +4168,7 @@ function renderAll() {
   renderV17Banner();
   renderV19Banner();
   renderPhaseBanner();
+  renderProjects();
   renderCompanionBubble();
   renderDayBoard();
   renderStatusGrid(); renderTodayOps(); renderRecentNotes(); renderQuickPowerups();
